@@ -1,24 +1,27 @@
-% core parameters
-f = 440; % f0
-n = 3; % order (vertex count)
-T = 0; % teeth
-phaseOffset = pi/6; % initial phase
-
-
 % wavetable
-tableSize = 2560;
-waveTable = zeros(1, tableSize+1);
+tableSize = 1024;
+%waveTable = zeros(1, tableSize);
+
+% core parameters
+np = 2; % number of periods
+n = 5/np; % order (schlalfi symbol) (n>2)
+f = 440/np; % f0
+T = 0.0; % teeth
+phaseOffset = 0; % initial phase
+R = 0.8; % scale
+
 
 t = [0:tableSize-1]/tableSize; % time vector
-theta = 2*pi*1*t; % phase angles of a period
+theta = 2*pi*t*np; % phase angle
+p = zeros(1, tableSize); % radial amplitude of geometry
  
 for i=1:tableSize % geometry
-    waveTable(i) = cos(pi/n) / cos(mod(theta(i), 2*pi/n) -pi/n + T);
+    p(i) = cos(pi/n) / cos(mod(theta(i), 2*pi/n) -pi/n + T) * R;
 end
 
 poly = zeros(1, tableSize); % sampled geometry
 for i=1:tableSize
-    poly(i) = waveTable(i) * (cos(theta(i)+phaseOffset) + 1j*sin(theta(i)+phaseOffset));
+    poly(i) = p(i) * (cos(theta(i)+phaseOffset) + 1j*sin(theta(i)+phaseOffset));
 end
 
 waveTable = imag(poly); % projection to y axis
@@ -26,10 +29,13 @@ waveTable = imag(poly); % projection to y axis
 
 %% plot
 subplot(2,1,1);
-plot(real(poly), imag(poly));
+plot(real(poly), imag(poly), 'r');
+axis([-1 1 -1 1]);
+axis equal;
 
 subplot(2,1,2);
-plot(waveTable);
+plot(waveTable, 'r');
+axis([0 tableSize -1 1]);
 
 %% sound
 duration = 1; 

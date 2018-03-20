@@ -1,12 +1,12 @@
 % core parameters
-f = 120; % f0
-n = 4; % order (vertex count)
+f = 440; % f0
+n = 3; % order (vertex count)
 T = 0; % teeth
-phaseOffset = pi/4; % initial phase
+phaseOffset = pi/6; % initial phase
 
 
 % wavetable
-tableSize = 256;
+tableSize = 2560;
 waveTable = zeros(1, tableSize+1);
 
 t = [0:tableSize-1]/tableSize; % time vector
@@ -21,7 +21,6 @@ for i=1:tableSize
     poly(i) = waveTable(i) * (cos(theta(i)+phaseOffset) + 1j*sin(theta(i)+phaseOffset));
 end
 
-%poly = waveTable .* (cos(theta+phaseOffset) + 1j*sin(theta+phaseOffset)); % sampled polygon
 waveTable = imag(poly); % projection to y axis
 %waveTable = [waveTable, waveTable(1)]; % wrap waveform around
 
@@ -33,11 +32,11 @@ subplot(2,1,2);
 plot(waveTable);
 
 %% sound
-duration = 3; 
+duration = 1; 
 fs = 44100;
-tableOverSamplingRate = tableSize / fs;
-tableDelta = f * tableOverSamplingRate; % read increment for wavetable
-readIndex = 1; % sample need to be read from wavetable
+tableOverSamplingRatio = tableSize / fs;
+tableDelta = f * tableOverSamplingRatio; % read increment for wavetable
+readIndex = 1; % table read index
 
 y = zeros(1, fs*duration); % output
 
@@ -56,7 +55,7 @@ for n=1:length(y) % synhtesis from wavetable
   
     frac = readIndex - i1; % sample fraction
     
-    y(n) = v1 + (frac*(v2-v1)); %interpolation
+    y(n) = v2 + (frac*(v2-v1)); %interpolation
     
     
     readIndex = readIndex + tableDelta;
@@ -69,5 +68,5 @@ end
 
 
 soundsc(y, fs);
-figure();
-plot(y);
+%figure();
+%plot(y);

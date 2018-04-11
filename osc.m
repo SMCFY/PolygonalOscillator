@@ -1,15 +1,15 @@
 %% wavetable
 
-tableSize = 1024;
+tableSize = 256;
 %waveTable = zeros(1, tableSize);
 
 % core parameters
-np = 1; % schalfi denominator (number of periods)
 N = 5; % schlalfi numerator
+np = 1; % schalfi denominator (number of periods)
 n = N/np; % order (schlalfi symbol) (n>2)
-f = 440/np; % f0
+f0 = 80/np; % f0
 T = 0.0; % teeth
-phaseOffset = 0; % initial phase
+phaseOffset = pi/3; % initial phase
 R = 1; % scale
 
 
@@ -18,7 +18,7 @@ theta = 2*pi*t*np; % phase angle
 p = zeros(1, tableSize); % radial amplitude of geometry
  
 for i=1:tableSize % geometry
-    p(i) = cos(pi/n) / cos(mod(theta(i), 2*pi/n) -pi/n + T) * R;
+    p(i) = cos(pi/n) / cos(mod(theta(i), 2*pi/n) -pi/n + T) * R; % (modified Eq1) 
 end
 
 poly = zeros(1, tableSize); % sampled geometry
@@ -30,27 +30,39 @@ waveTable = imag(poly); % projection to y axis
 
 %% anti aliasing
 
-dx = diff(waveTable)/0.1; % first derivative of the waveform
+dx = diff(waveTable); % first derivative of the waveform
 dx = dx / max(abs(dx)); % normalisation
+dx = [dx dx(1)]; % wrap around
 
 waveTableAA = waveTable; % anti-aliased waveform
+disc = zeros(1, N); % location of discontinuities expressed in samples
 
-for i=1:N-1 % iterates through discontinuities
-    nBoundary = ceil(tableSize/N*i); % boundary sample after the discontinuity
-    d = nBoundary - (tableSize/N*i); % fractional delay between the discontinuity and the next sample
-    u = abs(-2*tan(pi/n)*cos(2*pi/n*i)); % change in amplitude at the discontinuities
+for k=1:N % iterates through discontinuities
+    disc(k) = tableSize/N*k+1;
     
-    % 4-point polyBLAMP residual coefficients
+    % boundary samples (wrapped around the wavetable)
+    n3 = mod(ceil(disc(k)), tableSize);
+    n1 = mod(n3-2+tableSize, tableSize);
+    n2 = n1+1; %mod(n3-1+tableSize, tableSize);
+    n4 = mod(n3+1+tableSize, tableSize);
+
+    d = mod(n3 - disc(k), tableSize); % fractional delay between the discontinuity and the next sample (Eq.5)
+
+    %u = abs(dx(n2)-dx(n3)); % change in amplitude at the discontinuities
+    %u = (-sin(2*pi/N*k)*cos(pi/N)+sin(pi/N)*cos(2*pi/N*k) / cos(pi/n)) - (-sin(2*pi/N*k)*cos(pi/N)-sin(pi/N)*cos(2*pi/N*k) / cos(pi/n));
+    u = abs(-2*tan(pi/N)*cos(2*pi/N*k)); % change in amplitude at the discontinuities (Eq.11)
+    
+    % 4-point polyBLAMP residual coefficients (Table.1)
     p0 = d^5/120;
     p1 = (-3*d^5 +5*d^4 +10*d^3 +10*d^2 +5*d +1)/120;
     p2 = (3*d^5 -10*d^4 +40*d^2 -60*d +28)/120;
     p3 = (-d^5 +5*d^4 -10*d^3 +10*d^2 -5*d +1)/120;
     
     % waveform correction on the four samples around the discontinuity
-    waveTableAA(nBoundary -2) = waveTable(nBoundary -2) -p0*sign(waveTable(nBoundary -2)) *u;
-    waveTableAA(nBoundary -1) = waveTable(nBoundary -1) -p1*sign(waveTable(nBoundary -1)) *u;
-    waveTableAA(nBoundary   ) = waveTable(nBoundary   ) -p2*sign(waveTable(nBoundary   )) *u; 
-    waveTableAA(nBoundary +1) = waveTable(nBoundary +1) -p3*sign(waveTable(nBoundary +1)) *u;
+    waveTableAA(n1) = waveTable(n1) -p0*u *sign(waveTable(n1));
+    waveTableAA(n2) = waveTable(n2) -p1*u *sign(waveTable(n2));
+    waveTableAA(n3) = waveTable(n3) -p2*u *sign(waveTable(n3)); 
+    waveTableAA(n4) = waveTable(n4) -p3*u *sign(waveTable(n4));
     
 end
 
@@ -63,20 +75,23 @@ axis equal;
 title('Complex plane');
 
 subplot(2,1,2);
-plot(waveTable, 'b');
+graph1 = plot(waveTable, 'b');
 axis([0 tableSize -1 1]);
 hold on;
-plot(dx, '--');
+graph2 = plot(dx, '--');
 hold on;
-plot(waveTableAA, '-.m');
-legend('Waveform', 'Derivative', 'Anti-aliased waveform');
+graph3 = plot(waveTableAA, '-.m');
+for i=1:N
+    line([disc(i),disc(i)], [-1,1],'Color','red','LineStyle',':');
+end
+legend([graph1, graph2, graph3],{'Waveform', 'Derivative', 'Anti-aliased waveform'});
 title('Projection');
 %% synthesis
 
 duration = 1; 
 fs = 44100;
 tableOverSamplingRatio = tableSize / fs;
-tableDelta = f * tableOverSamplingRatio; % read increment for wavetable
+tableDelta = f0 * tableOverSamplingRatio; % read increment for wavetable
 readIndex = 1; % table read index
 
 y = zeros(1, fs*duration); % output

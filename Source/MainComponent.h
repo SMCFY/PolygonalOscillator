@@ -41,17 +41,18 @@ public:
 
 private:
     
-    int activeId; // id to match selected oscillator
     int fs; // sampling rate
     typedef struct oscInstance {
         Oscillator* osc;
         OscComponent* oscComp;
         int id;
+        bool active;
         oscInstance(const int& id, const Point<float>& p)
         {
-            this->id = id;
             osc = new Oscillator();
             oscComp = new OscComponent(p);
+            this->id = id;
+            active = oscComp->isActive();
         }
         ~oscInstance()
         {

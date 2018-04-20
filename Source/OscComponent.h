@@ -10,7 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class OscComponent : private AnimatedAppComponent
+class OscComponent : public Component, public Timer
 {
 public:
 
@@ -18,8 +18,9 @@ public:
 	~OscComponent();
 
 	void setPoly(const float& poly);
-
-	void update() override; 
+    void renderPoly(Graphics& g);
+    void setActive(const bool& a);
+    bool isActive();
 
 	void timerCallback() override;
 
@@ -36,12 +37,11 @@ public:
 
 private:
 
-	//int* const id; // ID
-	const int fps; // refresh rate
+	bool active; 
 	float compSize; // size of the component
-	Point<float> position;
+	Point<float> position; // component position relative to parent component
 	float* polygon; // geometry to draw
-	Colour colour; 
+	Colour col; 
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscComponent);
 };

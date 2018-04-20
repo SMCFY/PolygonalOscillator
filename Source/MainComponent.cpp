@@ -7,7 +7,6 @@ MainComponent::MainComponent()
     // Make sure you set the size of the component after
     // you add any child components.
     setSize(800, 600);
-
     setAudioChannels(2, 2);
 }
 
@@ -51,7 +50,7 @@ void MainComponent::releaseResources()
 //==============================================================================
 void MainComponent::paint (Graphics& g)
 {
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    g.fillAll(Colour().fromRGB(30, 30, 30));
 
 }
 
@@ -66,15 +65,25 @@ void MainComponent::resized()
 
 void MainComponent::createOscillator(const Point<float>& p)
 {
-    int id = (int)oscillatorBank.size();
+    int id = 0;
+    for(int i=0; i<oscillatorBank.size(); i++) // iterates through the oscillator instances
+    {
+        oscillatorBank.at(i)->id = id;
+        id++; // increment id
+    }
+
     oscInstance* o = new oscInstance(id, p);
     oscillatorBank.push_back(o);
 
+    addAndMakeVisible(o->oscComp);
+
+    repaint();
 }
 
 void MainComponent::removeOscillator(int id)
 {
-    
+    //int cId = getIndexOfChildComponent(oscillatorBank(id)->oscComp);
+    //removeChildComponent(cId)
     //oscillatorBank.erase(id);
 }
 

@@ -3,14 +3,13 @@
 #include "OscComponent.h"
 
 OscComponent::OscComponent(const Point<float>& p)
-: fps(30), compSize(200)
+: active(true), compSize(100), col(Colour().fromRGB(Random().nextInt(255), Random().nextInt(255), Random().nextInt(255)))
 {
 
-	setFramesPerSecond(fps);
+	//setFramesPerSecond(fps);
 	position = p;
-	setBounds(position.x, position.y, compSize, compSize);
-
-
+	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
+    setPaintingIsUnclipped(true); // enables painting outside the boundaries (this might cause optimization issues)
     std::cout << "new component created ";
 }
 
@@ -27,13 +26,28 @@ void OscComponent::setPoly(const float& poly)
 
 }
 
-
-//==============================================================================
-
-void OscComponent::update()
+void OscComponent::renderPoly(Graphics& g)
 {
+	if(active) // controls saturation of active/inactive instances
+		setAlpha(1.0f);
+	else
+		setAlpha(0.5f);
 
+
+    g.setColour(col); // random RGB
+    g.drawEllipse(getWidth()/2-50, getHeight()/2-50, 100, 100, 5);
 }
+
+void OscComponent::setActive(const bool& a)
+{
+	active = a;
+}
+
+bool OscComponent::isActive()
+{
+	return active;
+}
+
 
 //==============================================================================
 
@@ -46,9 +60,8 @@ void OscComponent::timerCallback()
 
 void OscComponent::paint(Graphics& g)
 {
-	std::cout << "drawyacunt ";
-	g.setColour(Colour().fromRGB(Random().nextInt(255), Random().nextInt(255), Random().nextInt(255))); // random RGB
-	g.drawEllipse(position.x-25, position.y-25, 50, 50, 5);
+    
+    renderPoly(g);
 }
 
 void OscComponent::resized()

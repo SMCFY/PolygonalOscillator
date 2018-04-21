@@ -9,10 +9,9 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include <vector>
 #include "OscComponent.h"
 
-class MainComponent : public AudioAppComponent
+class MainComponent : public AudioAppComponent, public ComponentListener
 {
 public:
 
@@ -27,17 +26,12 @@ public:
     void resized() override;
     
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
-    void removeOscillator(int id);
-    void childrenMarkedAsActive();
-    void setActiveComponent(); // sets the flagged oscillator active, and deactivates the rest
+    void removeOscillator(const int& id);
+    void setActiveComponent(const String& id); // sets the selected oscillator active, and deactivates the rest
 
     void mouseDoubleClick(const MouseEvent &event) override;
-    void mouseDown(const MouseEvent& e) override;
-    void mouseDrag(const MouseEvent& e) override;
-    void mouseUp(const MouseEvent& e) override;
-    void mouseMagnify(const MouseEvent &event, float scaleFactor) override;
 
-
+    void componentBroughtToFront(Component& component) override; // invoked when an oscillator instances is selected
 
 private:
 

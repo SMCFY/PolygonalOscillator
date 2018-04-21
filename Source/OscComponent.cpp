@@ -3,14 +3,13 @@
 #include "OscComponent.h"
 
 OscComponent::OscComponent(const Point<float>& p)
-: osc(new Oscillator()), activeFlag(false), active(false), compSize(150), lineThickness(5), col(Colour().fromRGB(Random().nextInt(255), Random().nextInt(255), Random().nextInt(255)))
+: osc(new Oscillator()), touchHandler(new TouchHandler()),
+compSize(150), lineThickness(5), col(Colour().fromRGB(Random().nextInt(155)+100, Random().nextInt(155)+100, Random().nextInt(155)+100))
 {
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
     size = compSize-lineThickness;
-
-    touchHandler = new TouchHandler();
-
+    
     startTimerHz(30);
 }
 
@@ -18,6 +17,8 @@ OscComponent::OscComponent(const Point<float>& p)
 OscComponent::~OscComponent()
 {
 	delete polygon;
+	delete touchHandler;
+	delete osc;
 }
 
 //==============================================================================
@@ -29,28 +30,27 @@ void OscComponent::setPoly(const float& poly)
 
 void OscComponent::renderPoly(Graphics& g)
 {
-	//if(active) // controls saturation of active/inactive instances
-	//	setAlpha(1.0f);
-	//else
-	//	setAlpha(0.5f);
-
-
     g.setColour(col); // random RGB
     g.drawEllipse(lineThickness/2, lineThickness/2, size, size, lineThickness);
     
 }
 
-void OscComponent::setActive(const bool& a)
+void OscComponent::setActive()
 {
-	//active = true;
-	//activeFlag = false;
+	active = true;
+    setAlpha(1.0f);
 }
 
-void OscComponent::markAsActive(const bool& af)
+void OscComponent::setInactive()
 {
-	//activeFlag = true;
-	//toFront(true);
-    //parent->childrenMarkedAsActive();
+    active = false;
+    setAlpha(0.6f);
+}
+
+void OscComponent::markAsActive()
+{
+	toFront(true);
+    std::cout << "marked as active";
 }
 
 
@@ -77,8 +77,11 @@ void OscComponent::resized()
 
 void OscComponent::mouseDown(const MouseEvent& e)
 {
-	markAsActive(true);
+    // if(onefinger only)
+    //{
+	markAsActive();
     dragger.startDraggingComponent(this, e);
+    //}
 	
 }
 

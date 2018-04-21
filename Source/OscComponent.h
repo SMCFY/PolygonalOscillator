@@ -12,17 +12,19 @@
 #include "Oscillator.h"
 #include "TouchHandler.h"
 
+
 class OscComponent : public Component, public Timer
 {
 public:
 
-	OscComponent(const Point<float>& p);
+    OscComponent(const Point<float>& p);
 	~OscComponent();
 
 	void setPoly(const float& poly);
     void renderPoly(Graphics& g);
-    void setActive(const bool& a); // set component to active
-    void markAsActive(const bool& af); // marks the component as active
+    void setActive();
+    void setInactive();
+    void markAsActive();
 
 	void timerCallback() override;
 
@@ -32,19 +34,15 @@ public:
     void mouseDown(const MouseEvent& e) override;
     void mouseDrag(const MouseEvent& e) override;
     void mouseUp(const MouseEvent& e) override;
-    // void mouseMagnify(const MouseEvent &event, float scaleFactor) override;
-
-
     
     
 private:
 
-	bool activeFlag;
 	bool active;
 	
 	Oscillator* osc;
 	ComponentDragger dragger;
-	TouchHandler toucHandler;
+	TouchHandler* touchHandler;
 
 	float compSize; // size of the component
 	Point<float> position; // component position relative to parent component

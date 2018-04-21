@@ -16,7 +16,7 @@ compSize(150), lineThickness(5), col(Colour().fromRGB(Random().nextInt(155)+100,
 
 OscComponent::~OscComponent()
 {
-	delete polygon;
+	//delete polygon;
 	delete touchHandler;
 	delete osc;
 }
@@ -50,7 +50,6 @@ void OscComponent::setInactive()
 void OscComponent::markAsActive()
 {
 	toFront(true);
-    std::cout << "marked as active";
 }
 
 

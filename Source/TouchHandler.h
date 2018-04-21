@@ -22,8 +22,8 @@ public:
 	void getNumPoints(); // return the total number of touch points on the screen
 
 
-	float getRadius(const int& numberOfPoints);
-	float getAngle(const int& numberOfPoints);
+	float getRadius();
+	float getAngle();
 	float getRadiusChange();
 	float getAngleChange();
 

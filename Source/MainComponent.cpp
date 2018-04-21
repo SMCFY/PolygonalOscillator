@@ -84,11 +84,14 @@ void MainComponent::createOscillator(const Point<float>& p)
     repaint();
 }
 
-void MainComponent::removeOscillator(const int& id)
+void MainComponent::removeOscillator(const String& id)
 {
-    //int cId = getIndexOfChildComponent(oscillatorBank(id)->oscComp);
-    //removeChildComponent(cId)
-    //oscillatorBank.erase(id);
+    for(int i=0; i<oscillatorBank.size(); i++)
+    {
+        if(oscillatorBank[i]->getComponentID() == id)
+            oscillatorBank.removeObject(oscillatorBank[i]);
+    }
+    
 }
 
 void MainComponent::setActiveComponent(const String& id)
@@ -116,5 +119,14 @@ void MainComponent::componentBroughtToFront(Component& component)
 {
     String activeId = component.getComponentID();
     setActiveComponent(activeId);
-    std::cout << "ACTIVATED";
+}
+
+void MainComponent::componentMovedOrResized (Component &component, bool wasMoved, bool wasResized)
+{
+    if(component.getBottom() > getHeight()+component.getHeight()/4) // delete oscillator if its dragged to the bottom of the screen
+    {
+        String targetId = component.getComponentID();
+        removeOscillator(targetId);
+    }
+
 }

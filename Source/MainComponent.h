@@ -26,12 +26,13 @@ public:
     void resized() override;
     
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
-    void removeOscillator(const int& id);
+    void removeOscillator(const String& id);
     void setActiveComponent(const String& id); // sets the selected oscillator active, and deactivates the rest
 
     void mouseDoubleClick(const MouseEvent &event) override;
 
-    void componentBroughtToFront(Component& component) override; // invoked when an oscillator instances is selected
+    void componentBroughtToFront(Component& component) override; // called when an oscillator instances is selected
+    void componentMovedOrResized (Component &component, bool wasMoved, bool wasResized) override; // called when an oscillator is dragged
 
 private:
 

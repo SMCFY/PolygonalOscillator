@@ -9,5 +9,5 @@ TouchHandler::TouchHandler()
 
 TouchHandler::~TouchHandler()
 {
-
+    arrayOfTouchPoints.clear(true);
 }

@@ -17,10 +17,9 @@ public:
 	TouchHandler();
 	~TouchHandler();
 
-	void addTouchPoint(const MouseEvent& e, const int& id);
+	void addTouchPoint(const MouseEvent& e);
 	void rmTouchPoint(const MouseEvent& e);
-	void getNumPoints(); // return the total number of touch points on the screen
-
+	int getNumPoints(); // return the total number of touch points on the screen
 
 	float getRadius();
 	float getAngle();
@@ -34,14 +33,17 @@ private:
 	float r3; // anchor radius 3 fingers
 	float alpha3; // anchor angle 3 fingers
 
+	float r2delta; // anchor radius increment 2 finger
+	float alpha2delta; // anchor angle increment 2 finger
+	float r3delta;
+	float alpha3delta;
+
 	typedef struct TouchPoint
 	{
-		int const* oscId; // ID matching the closest oscillator instance
 		Point<float> pos; // position
 		int sourceIndex; // MouseInputSource index
-		TouchPoint(const MouseInputSource& mouseInput, const int& id)
+		TouchPoint(const MouseInputSource& mouseInput)
         {
-        	oscId = &id;
 			pos = mouseInput.getScreenPosition();
 			sourceIndex = mouseInput.getIndex();
         }

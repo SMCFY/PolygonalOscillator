@@ -9,6 +9,8 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "Oscillator.h"
+#include "TouchHandler.h"
 
 class OscComponent : public Component, public Timer
 {
@@ -19,29 +21,40 @@ public:
 
 	void setPoly(const float& poly);
     void renderPoly(Graphics& g);
-    void setActive(const bool& a);
-    bool isActive();
+    void setActive(const bool& a); // set component to active
+    void markAsActive(const bool& af); // marks the component as active
 
 	void timerCallback() override;
 
 	void paint(Graphics& g) override;
     void resized() override;
 
-    // void mouseDown(const MouseEvent& e) override;
-    // void mouseDrag(const MouseEvent& e) override;
-    // void mouseUp(const MouseEvent& e) override;
-    // void mouseDoubleClick(const MouseEvent &event) override;
+    void mouseDown(const MouseEvent& e) override;
+    void mouseDrag(const MouseEvent& e) override;
+    void mouseUp(const MouseEvent& e) override;
     // void mouseMagnify(const MouseEvent &event, float scaleFactor) override;
 
 
-
+    
+    
 private:
 
-	bool active; 
+	bool activeFlag;
+	bool active;
+	
+	Oscillator* osc;
+	ComponentDragger dragger;
+	TouchHandler toucHandler;
+
 	float compSize; // size of the component
 	Point<float> position; // component position relative to parent component
+    float lineThickness;
+	float size; // size of rendered polygon
+	Colour col;
+
 	float* polygon; // geometry to draw
-	Colour col; 
+	
+	
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscComponent);
 };

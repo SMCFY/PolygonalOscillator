@@ -25,8 +25,6 @@ public:
 
 private:
 
-	bool active; // flags active(selected) instances
-
 	struct Paramset // core parameter set for the polygonal oscillator
 	{
 		int f0; // frequency

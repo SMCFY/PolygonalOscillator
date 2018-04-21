@@ -13,6 +13,7 @@ MainComponent::MainComponent()
 MainComponent::~MainComponent()
 {
     shutdownAudio();
+
 }
 
 //==============================================================================
@@ -65,17 +66,18 @@ void MainComponent::resized()
 
 void MainComponent::createOscillator(const Point<float>& p)
 {
-    int id = 0;
-    for(int i=0; i<oscillatorBank.size(); i++) // iterates through the oscillator instances
-    {
-        oscillatorBank.at(i)->id = id;
-        id++; // increment id
-    }
+    //int id = 0;
+    //for(int i=0; i<oscillatorBank.size(); i++) // iterates through the oscillator instances
+    //{
+    //    oscillatorBank.at(i)->id = id; // reassigns ids to all instances
+    //    id++;
+    //}
 
-    oscInstance* o = new oscInstance(id, p);
-    oscillatorBank.push_back(o);
+    //oscInstance* o = new oscInstance(id, p, this);
+    OscComponent* oscComp = new OscComponent(p);
+    oscillatorBank.add(oscComp);
 
-    addAndMakeVisible(o->oscComp);
+    addAndMakeVisible(oscComp);
 
     repaint();
 }
@@ -87,12 +89,28 @@ void MainComponent::removeOscillator(int id)
     //oscillatorBank.erase(id);
 }
 
+void MainComponent::childrenMarkedAsActive()
+{
+    setActiveComponent();
+}
+
+void MainComponent::setActiveComponent()
+{
+    //for(int i=0; i<oscillatorBank.size(); i++)
+    //{
+    //    if(oscillatorBank.at(i)->oscComp->activeFlag)
+    //        oscillatorBank.at(i)->oscComp->setActive(true);
+    //    else
+    //        oscillatorBank.at(i)->oscComp->setActive(false);
+    //}
+
+}
+
 //=============================================================================
 
 void MainComponent::mouseDoubleClick(const MouseEvent &event)
 {
     createOscillator(event.position);
-
 }
 
 

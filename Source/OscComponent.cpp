@@ -3,20 +3,21 @@
 #include "OscComponent.h"
 
 OscComponent::OscComponent(const Point<float>& p)
-: active(true), compSize(100), col(Colour().fromRGB(Random().nextInt(255), Random().nextInt(255), Random().nextInt(255)))
+: osc(new Oscillator()), activeFlag(false), active(false), compSize(150), lineThickness(5), col(Colour().fromRGB(Random().nextInt(255), Random().nextInt(255), Random().nextInt(255)))
 {
-
-	//setFramesPerSecond(fps);
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
-    setPaintingIsUnclipped(true); // enables painting outside the boundaries (this might cause optimization issues)
-    std::cout << "new component created ";
+    size = compSize-lineThickness;
+
+    touchHandler = new TouchHandler();
+
+    startTimerHz(30);
 }
 
 
 OscComponent::~OscComponent()
 {
-	
+	delete polygon;
 }
 
 //==============================================================================
@@ -28,24 +29,28 @@ void OscComponent::setPoly(const float& poly)
 
 void OscComponent::renderPoly(Graphics& g)
 {
-	if(active) // controls saturation of active/inactive instances
-		setAlpha(1.0f);
-	else
-		setAlpha(0.5f);
+	//if(active) // controls saturation of active/inactive instances
+	//	setAlpha(1.0f);
+	//else
+	//	setAlpha(0.5f);
 
 
     g.setColour(col); // random RGB
-    g.drawEllipse(getWidth()/2-50, getHeight()/2-50, 100, 100, 5);
+    g.drawEllipse(lineThickness/2, lineThickness/2, size, size, lineThickness);
+    
 }
 
 void OscComponent::setActive(const bool& a)
 {
-	active = a;
+	//active = true;
+	//activeFlag = false;
 }
 
-bool OscComponent::isActive()
+void OscComponent::markAsActive(const bool& af)
 {
-	return active;
+	//activeFlag = true;
+	//toFront(true);
+    //parent->childrenMarkedAsActive();
 }
 
 
@@ -53,18 +58,36 @@ bool OscComponent::isActive()
 
 void OscComponent::timerCallback()
 {
-
+	repaint();
 }
 
 //==============================================================================
 
 void OscComponent::paint(Graphics& g)
 {
-    
     renderPoly(g);
 }
 
 void OscComponent::resized()
 {
     repaint();
+}
+
+//==============================================================================
+
+void OscComponent::mouseDown(const MouseEvent& e)
+{
+	markAsActive(true);
+    dragger.startDraggingComponent(this, e);
+	
+}
+
+void OscComponent::mouseDrag(const MouseEvent& e)
+{
+    dragger.dragComponent(this, e, nullptr);
+}
+
+void OscComponent::mouseUp(const MouseEvent& e)
+{
+
 }

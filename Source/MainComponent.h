@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    Main class for handling audio and interactions.
+    Main class for handling audio.
 
   ==============================================================================
 */
@@ -10,9 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <vector>
-#include "Oscillator.h"
 #include "OscComponent.h"
-#include "TouchHandler.h"
 
 class MainComponent : public AudioAppComponent
 {
@@ -30,6 +28,8 @@ public:
     
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
     void removeOscillator(int id);
+    void childrenMarkedAsActive();
+    void setActiveComponent(); // sets the flagged oscillator active, and deactivates the rest
 
     void mouseDoubleClick(const MouseEvent &event) override;
     void mouseDown(const MouseEvent& e) override;
@@ -40,28 +40,27 @@ public:
 
 
 private:
-    
-    int fs; // sampling rate
-    typedef struct oscInstance {
-        Oscillator* osc;
-        OscComponent* oscComp;
-        int id;
-        bool active;
-        oscInstance(const int& id, const Point<float>& p)
-        {
-            osc = new Oscillator();
-            oscComp = new OscComponent(p);
-            this->id = id;
-            active = oscComp->isActive();
-        }
-        ~oscInstance()
-        {
-            delete osc;
-            delete oscComp;
-        }
-    } oscInstance;
 
-    std::vector<oscInstance*> oscillatorBank; // stores the oscillator - gui component pairs
+    int fs; // sampling rate
+
+    //typedef struct oscInstance {
+    //    Oscillator* osc;
+    //    OscComponent* oscComp;
+    //    int id;
+    //    oscInstance(const int& id, const Point<float>& p, const MainComponent& mc)
+    //    {
+    //        osc = new Oscillator();
+    //        oscComp = new OscComponent(p, mc);
+    //        this->id = id;
+    //    }
+    //    ~oscInstance()
+    //    {
+    //        delete osc;
+    //        delete oscComp;
+    //    }
+    //} oscInstance;
+
+    OwnedArray<OscComponent> oscillatorBank;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent);

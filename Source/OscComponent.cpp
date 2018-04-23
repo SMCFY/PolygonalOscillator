@@ -31,7 +31,7 @@ void OscComponent::setPoly(const float& poly)
 void OscComponent::renderPoly(Graphics& g)
 {
     g.setColour(col); // random RGB
-    g.drawEllipse(lineThickness/2, lineThickness/2, size, size, lineThickness);
+    g.drawEllipse((getWidth()-size)/2, (getWidth()-size)/2, size, size, lineThickness);
     
 }
 
@@ -101,8 +101,8 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             dragger.dragComponent(this, e, nullptr);
             break;
         case 2:
-            std::cout << touchHandler->getRadius() << " ";
-            touchHandler->getAngle();
+            size = 145 * touchHandler->getRadius();
+            lineThickness = 20 * touchHandler->getAngle();
             break;
         case 3:
             touchHandler->getRadius();

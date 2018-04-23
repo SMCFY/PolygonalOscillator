@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "math.h"
 
 class TouchHandler
 {
@@ -42,7 +43,8 @@ private:
 //    float r3delta;
 //    float alpha3delta;
 
-    float getAbsNormalizedDist(); // returns the normalized absolute distance between 2 touch points
+    float getAbsNormalizedDist(); // calculates the normalized absolute distance between 2 touch points
+    float getNormalizedAngle(); // calculates the normalized angle between 2 touch points
     
 	typedef struct TouchPoint
 	{

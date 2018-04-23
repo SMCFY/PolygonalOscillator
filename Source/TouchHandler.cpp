@@ -64,12 +64,18 @@ float TouchHandler::getRadius()
 
 float TouchHandler::getAngle()
 {
-//    if(getNumPoints() == 2)
-//        return alpha2;
-//    else if(getNumPoints() == 3)
-//        return alpha3;
-//    else
-//        return NULL;
+    if(getNumPoints() == 2)
+    {
+    	alpha2 = getNormalizedAngle();
+        return alpha2;
+    }
+    else if(getNumPoints() == 3)
+    {
+    	alpha3 = getNormalizedAngle();
+        return alpha3;
+    }
+    else
+        return NULL;
 }
 
 float TouchHandler::getRadiusChange()
@@ -98,4 +104,12 @@ float TouchHandler::getAbsNormalizedDist()
 {
     float dist = std::sqrt(std::pow(arrayOfTouchPoints[0]->pos.x-arrayOfTouchPoints[1]->pos.x,2) + std::pow(arrayOfTouchPoints[0]->pos.y-arrayOfTouchPoints[1]->pos.y,2));
     return jmin(jmax(dist-rMin, 0.0f), rMax) / rMax; //normalized, capped distance
+}
+
+float TouchHandler::getNormalizedAngle()
+{
+	float x = arrayOfTouchPoints[1]->pos.x-arrayOfTouchPoints[0]->pos.x;
+	float y = arrayOfTouchPoints[1]->pos.y-arrayOfTouchPoints[0]->pos.y;
+    return atan2(y,x) / MathConstants<float>::pi;
+
 }

@@ -22,6 +22,7 @@ public:
 
 	void updateParams(const float& r, const float& alpha, const int& numPoints);
 	void setTableSize(const int& size);
+	void setSamplingRate(const int& samplingRate);
 
 private:
 
@@ -34,10 +35,10 @@ private:
 		float r; // radius (amplitude)
 	};
 
-	int tableSize;
-	float wavetable;
 	int fs; // sampling rate
-	float polygon; // radial amplitude of geometry
+	int tableSize;
+	float* wavetable;
+	float* polygon; // radial amplitude of geometry
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscillator);
 };

@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-	Renders GUI for the oscillators.
+	Renders GUI for the oscillators and handles interactions.
 
   ==============================================================================
 */
@@ -32,9 +32,8 @@ public:
     void resized() override;
 
     void mouseDown(const MouseEvent& e) override;
-    void mouseDrag(const MouseEvent& e) override;
     void mouseUp(const MouseEvent& e) override;
-    
+    void mouseDrag(const MouseEvent& e) override;
     
 private:
 

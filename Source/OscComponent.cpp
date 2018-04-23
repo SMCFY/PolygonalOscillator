@@ -76,20 +76,39 @@ void OscComponent::resized()
 
 void OscComponent::mouseDown(const MouseEvent& e)
 {
-    // if(onefinger only)
-    //{
-	markAsActive();
-    dragger.startDraggingComponent(this, e);
-    //}
+    touchHandler->addTouchPoint(e);
+    
+    if(touchHandler->getNumPoints() == 1) // selection and dragging of oscillators
+    {
+        markAsActive();
+        dragger.startDraggingComponent(this, e);
+    }
 	
-}
-
-void OscComponent::mouseDrag(const MouseEvent& e)
-{
-    dragger.dragComponent(this, e, nullptr);
 }
 
 void OscComponent::mouseUp(const MouseEvent& e)
 {
+    touchHandler->rmTouchPoint(e);
+}
 
+void OscComponent::mouseDrag(const MouseEvent& e)
+{
+    touchHandler->updatePoints(e);
+    
+    switch(touchHandler->getNumPoints()) // mapping based on number of touch points
+    {
+        case 1:
+            dragger.dragComponent(this, e, nullptr);
+            break;
+        case 2:
+            std::cout << touchHandler->getRadius() << " ";
+            touchHandler->getAngle();
+            break;
+        case 3:
+            touchHandler->getRadius();
+            touchHandler->getAngle();
+            break;
+        default:
+            break;
+    }
 }

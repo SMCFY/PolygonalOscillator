@@ -24,10 +24,6 @@ public:
 
     void paint(Graphics& g) override;
     void resized() override;
-    
-    void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
-    void removeOscillator(const String& id);
-    void setActiveComponent(const String& id); // sets the selected oscillator active, and deactivates the rest
 
     void mouseDoubleClick(const MouseEvent &event) override;
 
@@ -38,23 +34,10 @@ private:
 
     int fs; // sampling rate
 
-    //typedef struct oscInstance {
-    //    Oscillator* osc;
-    //    OscComponent* oscComp;
-    //    int id;
-    //    oscInstance(const int& id, const Point<float>& p, const MainComponent& mc)
-    //    {
-    //        osc = new Oscillator();
-    //        oscComp = new OscComponent(p, mc);
-    //        this->id = id;
-    //    }
-    //    ~oscInstance()
-    //    {
-    //        delete osc;
-    //        delete oscComp;
-    //    }
-    //} oscInstance;
-
+    void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
+    void removeOscillator(const String& id);
+    void setActiveComponent(const String& id); // sets the selected oscillator active, and deactivates the rest
+    
     OwnedArray<OscComponent> oscillatorBank;
 
 

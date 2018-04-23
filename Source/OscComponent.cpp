@@ -4,7 +4,7 @@
 
 OscComponent::OscComponent(const Point<float>& p)
 : osc(new Oscillator()), touchHandler(new TouchHandler()),
-compSize(150), lineThickness(5), col(Colour().fromRGB(Random().nextInt(155)+100, Random().nextInt(155)+100, Random().nextInt(155)+100))
+compSize(150), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
 {
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
@@ -16,21 +16,15 @@ compSize(150), lineThickness(5), col(Colour().fromRGB(Random().nextInt(155)+100,
 
 OscComponent::~OscComponent()
 {
-	//delete polygon;
 	delete touchHandler;
 	delete osc;
 }
 
 //==============================================================================
 
-void OscComponent::setPoly(const float& poly)
-{
-
-}
-
 void OscComponent::renderPoly(Graphics& g)
 {
-    g.setColour(col); // random RGB
+    g.setColour(col);
     g.drawEllipse((getWidth()-size)/2, (getWidth()-size)/2, size, size, lineThickness);
     
 }
@@ -38,13 +32,15 @@ void OscComponent::renderPoly(Graphics& g)
 void OscComponent::setActive()
 {
 	active = true;
-    setAlpha(1.0f);
+    col = col.withSaturation(1.0f);
+    col = col.withBrightness(1.0f);
 }
 
 void OscComponent::setInactive()
 {
     active = false;
-    setAlpha(0.6f);
+    col = col.withSaturation(0.4f);
+    col = col.withBrightness(0.4f);
 }
 
 void OscComponent::markAsActive()
@@ -69,7 +65,7 @@ void OscComponent::paint(Graphics& g)
 
 void OscComponent::resized()
 {
-    repaint();
+
 }
 
 //==============================================================================
@@ -105,7 +101,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             lineThickness = 20 * touchHandler->getAngle();
             break;
         case 3:
-            touchHandler->getRadius();
+            setAlpha(touchHandler->getRadius());
             touchHandler->getAngle();
             break;
         default:

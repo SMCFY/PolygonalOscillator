@@ -9,6 +9,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include <complex>
 
 class Oscillator
 {
@@ -21,8 +22,9 @@ public:
 	void synthesizeWaveform(AudioBuffer<float> buffer);
 
 	void updateParams(const float& r, const float& alpha, const int& numPoints);
-	void setTableSize(const int& size);
 	void setSamplingRate(const int& samplingRate);
+	float getPolyReal();
+	float getPolyImag();
 
 private:
 
@@ -38,7 +40,11 @@ private:
 	int fs; // sampling rate
 	int tableSize;
 	float* wavetable;
-	float* polygon; // radial amplitude of geometry
+    float* p; // radial amplitude of polygon
+	std::complex<float>* polygon; // sampled polygon
+
+	float* polyReal; // real part of polygon
+	float* polyImag; // imaginary part of polygon
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscillator);
 };

@@ -98,7 +98,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             break;
         case 2:
             size = 145 * touchHandler->getRadius();
-            lineThickness = 20 * touchHandler->getAngle();
+            lineThickness = 40 * touchHandler->getAngle();
             break;
         case 3:
             setAlpha(touchHandler->getRadius());

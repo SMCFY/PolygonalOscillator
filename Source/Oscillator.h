@@ -25,7 +25,8 @@ public:
 
 	void updateParams(const float& r, const float& alpha, const int& numPoints);
 	void setSamplingRate(const int& samplingRate);
-	OwnedArray<Point<float>> getDrawCoords(); // returns the cartesian coordinates of the sampled geometry for rendering
+	int getTablesize();
+	Point<float> getDrawCoords(const int& i); // returns the cartesian coordinates of the sampled geometry for rendering
 
 private:
 
@@ -40,10 +41,7 @@ private:
     float pi;
     
 	float* wavetable;
-    //float* p; // radial amplitude of polygon
 	std::complex<float>* polygon; // sampled polygon
-	//float* polyReal; // real part of polygon
-	//float* polyImag; // imaginary part of polygon
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscillator);
 };

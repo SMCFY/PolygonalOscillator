@@ -21,6 +21,7 @@ public:
 	~OscComponent();
 
     void renderPoly(Graphics& g);
+    Point<float> mapToScreenCoords(const Point<float>& coords); // maps the polygon coordinates to the component's screen coordinates
     void setActive();
     void setInactive();
     void markAsActive();

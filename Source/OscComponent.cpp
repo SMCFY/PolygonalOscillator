@@ -24,9 +24,35 @@ OscComponent::~OscComponent()
 
 void OscComponent::renderPoly(Graphics& g)
 {
+
+    Path polyPath;
+    polyPath.startNewSubPath(mapToScreenCoords(Point<float>(osc->getDrawCoords(0)))); // starting the path at the first point
+
+    for (int i=1; i < osc->getTablesize(); i++)
+    {
+
+        polyPath.lineTo(mapToScreenCoords(Point<float>(osc->getDrawCoords(i)))); // add line segment to consequitve points
+        
+    }
+
     g.setColour(col);
-    g.drawEllipse((getWidth()-size)/2, (getWidth()-size)/2, size, size, lineThickness);
+    // g.drawEllipse((getWidth()-size)/2, (getWidth()-size)/2, size, size, lineThickness);
+    g.strokePath(polyPath, PathStrokeType(lineThickness));
     
+}
+
+Point<float> OscComponent::mapToScreenCoords(const Point<float>& coords)
+{
+
+    Point<float> p = coords;
+    
+    p.x+= 1.0f; // nudge the range to 0 to 2
+    p.y+= 1.0f;
+
+    p.x *= size/2; // scale
+    p.y *= size/2;
+    
+    return p;
 }
 
 void OscComponent::setActive()
@@ -98,7 +124,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             break;
         case 2:
             size = 145 * touchHandler->getRadius();
-            lineThickness = 40 * touchHandler->getAngle();
+            lineThickness = round(touchHandler->getAngle()*10);
             break;
         case 3:
             setAlpha(touchHandler->getRadius());

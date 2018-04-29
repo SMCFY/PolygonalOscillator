@@ -2,13 +2,14 @@
 
 #include "Oscillator.h"
 
-Oscillator::Oscillator()
+Oscillator::Oscillator(int fs)
 : pi(MathConstants<float>::pi), tableSize(512), f0(440), n(4), t(0.0f), phaseOffset(0.0f), r(1.0f)
 {
-
 	wavetable = new float[tableSize];
     polygon = new std::complex<float>[tableSize];
-
+    
+    this->fs = fs;
+    
 	generateWavetable();
 }
 
@@ -39,7 +40,46 @@ void Oscillator::generateWavetable()
 
 void Oscillator::synthesizeWaveform(AudioBuffer<float> buffer)
 {
-
+    
+    float tableOverSamplingRatio = tableSize/fs;
+    float tableDelta = f0 * tableOverSamplingRatio; // read increment for wavetable
+    float readIndex = 0; // table read index
+    
+    float** buff = buffer.getArrayOfWritePointers();
+    
+    
+    for (int sample = 0; sample < buffer.getNumSamples(); sample++)
+    {
+        int i1 = floor(readIndex); // sample index before the readIndex
+        int i2; // sample index after the readIndex
+        
+        if(i1 == tableSize-1)
+            i2 = 0; // wrap around sample index
+        else
+            i2 = i1+1;
+        
+        float v1 = wavetable[i1];
+        float v2 = wavetable[i2];
+        
+        float frac = readIndex - i1; // sample fraction
+        
+        buff[0][sample] = v2 + (frac*(v2-v1)); // linear interpolation to calculate output sample
+            
+            
+        readIndex = readIndex + tableDelta; // increment read index
+        if(readIndex > tableSize-1)
+            readIndex = readIndex-tableSize; // wrap around readIndex if table size is exceeded
+    }
+    
+    if(buffer.getNumChannels() > 1) // if more than one channels are available copy the same array
+    {
+        for(int ch = 1; ch < buffer.getNumChannels(); ch++)
+        {
+            for (int sample = 0; sample < buffer.getNumSamples(); sample++)
+                buff[ch][sample] = buff[ch-1][sample];
+        }
+    }
+    
 }
 
 //==============================================================================
@@ -79,11 +119,6 @@ void Oscillator::updatePhaseOffset(const float& phaseOffset)
 void Oscillator::updateRadius(const float& r)
 {	
 	this->r = r;
-}
-
-void Oscillator::setSamplingRate(const int& samplingRate)
-{
-	fs = samplingRate;
 }
 
 int Oscillator::getTablesize()

@@ -2,8 +2,8 @@
 
 #include "OscComponent.h"
 
-OscComponent::OscComponent(const Point<float>& p)
-: osc(new Oscillator()), touchHandler(new TouchHandler()),
+OscComponent::OscComponent(const Point<float>& p, int fs)
+: osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
 compSize(200), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
 {
 	position = p;
@@ -82,6 +82,10 @@ void OscComponent::markAsActive()
 	toFront(true);
 }
 
+void OscComponent::synthWaveform(AudioBuffer<float> buffer)
+{
+    osc->synthesizeWaveform(buffer);
+}
 
 //==============================================================================
 

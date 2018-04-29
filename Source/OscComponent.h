@@ -17,7 +17,7 @@ class OscComponent : public Component, public Timer
 {
 public:
 
-    OscComponent(const Point<float>& p);
+    OscComponent(const Point<float>& p, int fs);
 	~OscComponent();
 
     void renderPoly(Graphics& g); // renders the geometry
@@ -26,7 +26,8 @@ public:
     void setActive();
     void setInactive();
     void markAsActive();
-
+    void synthWaveform(AudioBuffer<float> buffer); // calls Oscillator::synthesizeWaveform() function
+    
 	void timerCallback() override;
 
 	void paint(Graphics& g) override;

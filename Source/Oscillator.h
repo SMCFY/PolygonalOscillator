@@ -17,7 +17,7 @@ class Oscillator
 {
 public:
 
-	Oscillator();
+	Oscillator(int fs);
 	~Oscillator();
 
 	void generateWavetable();
@@ -29,7 +29,6 @@ public:
 	void updateTeeth(const float& t);
 	void updatePhaseOffset(const float& phaseOffset);
 	void updateRadius(const float& r);
-	void setSamplingRate(const int& samplingRate);
 	int getTablesize();
 	Point<float> getDrawCoords(const int& i); // returns the cartesian coordinates of the sampled geometry for rendering
 

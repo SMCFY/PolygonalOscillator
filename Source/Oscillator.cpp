@@ -27,7 +27,7 @@ void Oscillator::generateWavetable()
 
 	for(int i=0; i<tableSize; i++)
 	{
-        float p = std::cos(pi/n) / std::cos(fmod(theta.phase, 2*pi/n) - pi/n + t); // radial amplitude
+        float p = std::cos(pi/n) / std::cos(fmod(theta.phase, 2*pi/n) - pi/n + t) * r; // radial amplitude
         polygon[i].real(p * cos(theta.phase+phaseOffset));
         polygon[i].imag(p * sin(theta.phase+phaseOffset));
         
@@ -44,10 +44,41 @@ void Oscillator::synthesizeWaveform(AudioBuffer<float> buffer)
 
 //==============================================================================
 
-void Oscillator::updateParams(const float& r, const float& alpha, const int& numPoints)
-{
+//void Oscillator::updateParams(const int& f0, const float& n, const float& t, const float& phaseOffset, const float& r)
+//{
+//	this->f0 = f0;
+//	this->n = n;
+//	this->t = t;
+//	this->phaseOffset = phaseOffset;
+//	this->r = r;
+//
+//
+//	generateWavetable();
+//}
 
-	generateWavetable();
+void Oscillator::updateFreq(const int& f0)
+{
+	this->f0 = f0;
+}
+
+void Oscillator::updateOrder(const float& n)
+{
+	this->n = n;
+}
+
+void Oscillator::updateTeeth(const float& t)
+{
+	this->t = t;
+}
+
+void Oscillator::updatePhaseOffset(const float& phaseOffset)
+{
+	this->phaseOffset = phaseOffset;
+}
+
+void Oscillator::updateRadius(const float& r)
+{	
+	this->r = r;
 }
 
 void Oscillator::setSamplingRate(const int& samplingRate)

@@ -4,11 +4,13 @@
 
 OscComponent::OscComponent(const Point<float>& p)
 : osc(new Oscillator()), touchHandler(new TouchHandler()),
-compSize(150), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
+compSize(200), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
 {
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
-    size = compSize-lineThickness;
+    size = compSize;
+    
+    drawPoly();
     
     startTimerHz(30);
 }
@@ -25,7 +27,14 @@ OscComponent::~OscComponent()
 void OscComponent::renderPoly(Graphics& g)
 {
 
-    Path polyPath;
+    g.setColour(col);
+    g.strokePath(polyPath, PathStrokeType(lineThickness));
+    
+}
+
+void OscComponent::drawPoly()
+{
+    polyPath.clear();
     polyPath.startNewSubPath(mapToScreenCoords(Point<float>(osc->getDrawCoords(0)))); // starting the path at the first point
 
     for (int i=1; i < osc->getTablesize(); i++)
@@ -35,10 +44,6 @@ void OscComponent::renderPoly(Graphics& g)
         
     }
 
-    g.setColour(col);
-    // g.drawEllipse((getWidth()-size)/2, (getWidth()-size)/2, size, size, lineThickness);
-    g.strokePath(polyPath, PathStrokeType(lineThickness));
-    
 }
 
 Point<float> OscComponent::mapToScreenCoords(const Point<float>& coords)
@@ -51,6 +56,9 @@ Point<float> OscComponent::mapToScreenCoords(const Point<float>& coords)
 
     p.x *= size/2; // scale
     p.y *= size/2;
+
+    p.x+= (compSize-size)/2; // offset
+    p.y+= (compSize-size)/2;
     
     return p;
 }
@@ -105,7 +113,6 @@ void OscComponent::mouseDown(const MouseEvent& e)
         markAsActive();
         dragger.startDraggingComponent(this, e);
     }
-	
 }
 
 void OscComponent::mouseUp(const MouseEvent& e)
@@ -123,12 +130,18 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             dragger.dragComponent(this, e, nullptr);
             break;
         case 2:
-            size = 145 * touchHandler->getRadius();
-            lineThickness = round(touchHandler->getAngle()*10);
+            osc->updateRadius(touchHandler->getRadius());
+            osc->updateOrder(round(touchHandler->getAngle()*10));
+
+            osc->generateWavetable();
+            drawPoly(); // re-draw polygon
             break;
         case 3:
-            setAlpha(touchHandler->getRadius());
-            touchHandler->getAngle();
+            osc->updateTeeth(touchHandler->getRadius());
+            osc->updatePhaseOffset(touchHandler->getAngle());
+
+            osc->generateWavetable();
+            drawPoly();
             break;
         default:
             break;

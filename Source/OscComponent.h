@@ -20,7 +20,8 @@ public:
     OscComponent(const Point<float>& p);
 	~OscComponent();
 
-    void renderPoly(Graphics& g);
+    void renderPoly(Graphics& g); // renders the geometry
+    void drawPoly(); // draws the geometry from line segments
     Point<float> mapToScreenCoords(const Point<float>& coords); // maps the polygon coordinates to the component's screen coordinates
     void setActive();
     void setInactive();
@@ -48,7 +49,8 @@ private:
 	
     float lineThickness;
 	float size; // size of rendered polygon
-	Colour col;	
+	Colour col;
+	Path polyPath; // sequence of line segments to draw the geometry
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscComponent);
 };

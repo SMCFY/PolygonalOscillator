@@ -23,7 +23,12 @@ public:
 	void generateWavetable();
 	void synthesizeWaveform(AudioBuffer<float> buffer);
 
-	void updateParams(const float& r, const float& alpha, const int& numPoints);
+	//void updateParams(const int& f0, const float& n, const float& t, const float& phaseOffset, const float& r);
+	void updateFreq(const int& f0);
+	void updateOrder(const float& n);
+	void updateTeeth(const float& t);
+	void updatePhaseOffset(const float& phaseOffset);
+	void updateRadius(const float& r);
 	void setSamplingRate(const int& samplingRate);
 	int getTablesize();
 	Point<float> getDrawCoords(const int& i); // returns the cartesian coordinates of the sampled geometry for rendering

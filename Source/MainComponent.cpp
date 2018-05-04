@@ -4,12 +4,8 @@
 bool once;
 MainComponent::MainComponent()
 {
-    // Make sure you set the size of the component after
-    // you add any child components.
     setSize(800, 600);
-    setAudioChannels(2, 2);
-    
-    once = false;
+    setAudioChannels(0, 2);
 }
 
 MainComponent::~MainComponent()
@@ -33,27 +29,13 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
 {
-    // Your audio-processing code goes here!
 
-    // For more details, see the help for AudioProcessor::getNextAudioBlock()
-
-    // Right now we are not producing any data, in which case we need to clear the buffer
-    // (to prevent the output of random noise)
     bufferToFill.clearActiveBufferRegion();
     for (int i = 0; i < oscillatorBank.size(); i++)
     {
         oscillatorBank[i]->synthWaveform(*bufferToFill.buffer);
     }
-    
-    if (!once)
-    {
-        for (int i = 0; i < bufferToFill.buffer->getNumSamples(); i++)
-        {
-            //std::cout << bufferToFill.buffer->getWritePointer(0)[i] << " ";
-        }
-        once = true;
-    }
-    
+
 }
 
 void MainComponent::releaseResources()

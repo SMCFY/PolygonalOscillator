@@ -3,12 +3,13 @@
 #include "Oscillator.h"
 
 Oscillator::Oscillator(int fs)
-: pi(MathConstants<float>::pi), tableSize(512), f0(440), n(4), t(0.0f), phaseOffset(0.0f), r(1.0f)
+: pi(MathConstants<float>::pi), tableSize(512), tableReadIndex(0), f0(Random().nextInt(Range<int>(110, 880))), n(4), t(0.0f), phaseOffset(0.0f), r(1.0f)
 {
 	wavetable = new float[tableSize];
     polygon = new std::complex<float>[tableSize];
     
     this->fs = fs;
+    tableOverSamplingRatio = float(tableSize)/float(fs);
     
 	generateWavetable();
 }
@@ -36,21 +37,20 @@ void Oscillator::generateWavetable()
         
         theta.advance(2*pi/tableSize); // increment phase
 	}
+
+    tableDelta = f0 * tableOverSamplingRatio;
+
 }
 
 void Oscillator::synthesizeWaveform(AudioBuffer<float> buffer)
 {
-    
-    float tableOverSamplingRatio = tableSize/fs;
-    float tableDelta = f0 * tableOverSamplingRatio; // read increment for wavetable
-    float readIndex = 0; // table read index
     
     float** buff = buffer.getArrayOfWritePointers();
     
     
     for (int sample = 0; sample < buffer.getNumSamples(); sample++)
     {
-        int i1 = floor(readIndex); // sample index before the readIndex
+        int i1 = floor(tableReadIndex); // sample index before the readIndex
         int i2; // sample index after the readIndex
         
         if(i1 == tableSize-1)
@@ -61,14 +61,14 @@ void Oscillator::synthesizeWaveform(AudioBuffer<float> buffer)
         float v1 = wavetable[i1];
         float v2 = wavetable[i2];
         
-        float frac = readIndex - i1; // sample fraction
+        float frac = tableReadIndex - i1; // sample fraction
         
         buff[0][sample] = v2 + (frac*(v2-v1)); // linear interpolation to calculate output sample
             
             
-        readIndex = readIndex + tableDelta; // increment read index
-        if(readIndex > tableSize-1)
-            readIndex = readIndex-tableSize; // wrap around readIndex if table size is exceeded
+        tableReadIndex = tableReadIndex + tableDelta; // increment read index
+        if(tableReadIndex > tableSize-1)
+            tableReadIndex = tableReadIndex-tableSize; // wrap around readIndex if table size is exceeded
     }
     
     if(buffer.getNumChannels() > 1) // if more than one channels are available copy the same array

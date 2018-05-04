@@ -43,7 +43,11 @@ private:
 	int fs; // sampling rate
 	int tableSize;
     float pi;
-    
+
+    float tableOverSamplingRatio; // oversampling ratio for synthesis
+    float tableDelta; // read increment for wavetable
+    float tableReadIndex; // init table read index
+
 	float* wavetable;
 	std::complex<float>* polygon; // sampled polygon
 

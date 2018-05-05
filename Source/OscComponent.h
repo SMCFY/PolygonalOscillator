@@ -52,6 +52,11 @@ private:
 	float size; // size of rendered polygon
 	Colour col;
 	Path polyPath; // sequence of line segments to draw the geometry
+    
+    Range<int> orderRange; // predefined ranges for oscillator parameters
+    Range<float> teethRange;
+    Range<float> phaseOffRange;
+    Range<float> radRange;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscComponent);
 };

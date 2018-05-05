@@ -4,6 +4,7 @@
 
 OscComponent::OscComponent(const Point<float>& p, int fs)
 : osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
+orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 1.0f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.0f, 1.0f)),
 compSize(200), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
 {
 	position = p;
@@ -135,14 +136,14 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             break;
         case 2:
             osc->updateRadius(touchHandler->getRadius());
-            osc->updateOrder(round(touchHandler->getAngle()*10));
+            osc->updateOrder(orderRange.clipValue(abs(touchHandler->getAngle()*20))); // clip the scaled absolute angle to the given range and updtate respective oscilator parameter
 
             osc->generateWavetable();
             drawPoly(); // re-draw polygon
             break;
         case 3:
             osc->updateTeeth(touchHandler->getRadius());
-            osc->updatePhaseOffset(touchHandler->getAngle());
+            osc->updatePhaseOffset(phaseOffRange.clipValue(abs(touchHandler->getAngle()*2)));
 
             osc->generateWavetable();
             drawPoly();

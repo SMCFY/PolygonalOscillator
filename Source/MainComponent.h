@@ -37,6 +37,7 @@ private:
     int samplesPerFrame; // number of samples per frame
 
     float** outputFrame; // output buffer
+    AudioBuffer<float> outputBuffer;
     
 
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair

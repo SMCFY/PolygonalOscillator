@@ -25,6 +25,8 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     for (int ch = 0; ch < numberOfChannels; ch++)
         outputFrame[ch] = new float(samplesPerFrame);
 
+    outputBuffer = AudioBuffer<float>(numberOfChannels, samplesPerFrame);
+    
     // This function will be called when the audio device is started, or when
     // its settings (i.e. sample rate, block size, etc) are changed.
 
@@ -41,10 +43,12 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     
     for (int i = 0; i < oscillatorBank.size(); i++)
     {
-        outputFrame = oscillatorBank[i]->synthWaveform(numberOfChannels, samplesPerFrame);
+        oscillatorBank[i]->synthWaveform(outputBuffer);
+
     }
     
-    bufferToFill.buffer->setDataToReferTo(outputFrame, numberOfChannels, samplesPerFrame); // change the reference to the array holing the mixed output of the oscillators
+    if(oscillatorBank.size() != 0)
+        bufferToFill.buffer->copyFrom(0, 0, outputBuffer, 0, 0, 256);
 
 }
 

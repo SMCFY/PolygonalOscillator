@@ -10,6 +10,7 @@ Oscillator::Oscillator(int fs)
     
     this->fs = fs;
     tableOverSamplingRatio = float(tableSize)/float(fs);
+    tableDelta = f0 * tableOverSamplingRatio;
     
 	generateWavetable();
 }
@@ -38,18 +39,18 @@ void Oscillator::generateWavetable()
         theta.advance(2*pi/tableSize); // increment phase
 	}
 
-    tableDelta = f0 * tableOverSamplingRatio;
-
 }
 
-float** Oscillator::synthesizeWaveform(const int& numberOfChannels, const int& samplesPerFrame)
+void Oscillator::synthesizeWaveform(AudioBuffer<float> buff)
 {   
     
-    float** output = new float*[numberOfChannels]; // init output buffer
-    for (int ch = 0; ch < numberOfChannels; ch++)
-        output[ch] = new float(samplesPerFrame);
+//    float** output = new float*[numberOfChannels]; // init output buffer
+//    for (int ch = 0; ch < numberOfChannels; ch++)
+//        output[ch] = new float(samplesPerFrame);
 
-    for (int sample = 0; sample < samplesPerFrame; sample++)
+    float** output = buff.getArrayOfWritePointers();
+    
+    for (int sample = 0; sample < buff.getNumSamples(); sample++)
     {
         int i1 = floor(tableReadIndex); // sample index before the readIndex
         int i2; // sample index after the readIndex
@@ -72,16 +73,14 @@ float** Oscillator::synthesizeWaveform(const int& numberOfChannels, const int& s
             tableReadIndex = tableReadIndex-tableSize; // wrap around readIndex if table size is exceeded
     }
     
-//    if(numberOfChannels > 1) // if more than one channels are available copy the same array of samples
-//    {
-//        for(int ch = 1; ch < numberOfChannels; ch++)
-//        {
-//            for (int sample = 0; sample < samplesPerFrame; sample++)
-//                output[ch][sample] = output[ch-1][sample];
-//        }
-//    }
-
-    return output;
+    if(buff.getNumChannels() > 1) // if more than one channels are available copy the same array of samples
+    {
+        for(int ch = 1; ch < buff.getNumChannels(); ch++)
+        {
+            for (int sample = 0; sample < buff.getNumSamples(); sample++)
+                output[ch][sample] = output[ch-1][sample];
+        }
+    }
     
 }
 

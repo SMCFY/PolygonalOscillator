@@ -26,7 +26,7 @@ public:
     void setActive();
     void setInactive();
     void markAsActive();
-    float** synthWaveform(const int& numberOfChannels, const int& samplesPerFrame); // calls Oscillator::synthesizeWaveform()
+    void synthWaveform(AudioBuffer<float> buff); // calls Oscillator::synthesizeWaveform()
     
 	void timerCallback() override;
 

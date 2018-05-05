@@ -42,13 +42,14 @@ void Oscillator::generateWavetable()
 
 }
 
-void Oscillator::synthesizeWaveform(AudioBuffer<float> buffer)
-{
+float** Oscillator::synthesizeWaveform(const int& numberOfChannels, const int& samplesPerFrame)
+{   
     
-    float** buff = buffer.getArrayOfWritePointers();
-    
-    
-    for (int sample = 0; sample < buffer.getNumSamples(); sample++)
+    float** output = new float*[numberOfChannels]; // init output buffer
+    for (int ch = 0; ch < numberOfChannels; ch++)
+        output[ch] = new float(samplesPerFrame);
+
+    for (int sample = 0; sample < samplesPerFrame; sample++)
     {
         int i1 = floor(tableReadIndex); // sample index before the readIndex
         int i2; // sample index after the readIndex
@@ -63,7 +64,7 @@ void Oscillator::synthesizeWaveform(AudioBuffer<float> buffer)
         
         float frac = tableReadIndex - i1; // sample fraction
         
-        buff[0][sample] = v2 + (frac*(v2-v1)); // linear interpolation to calculate output sample
+        output[0][sample] = v2 + (frac*(v2-v1)); // linear interpolation to calculate output samples for a single channel
             
             
         tableReadIndex = tableReadIndex + tableDelta; // increment read index
@@ -71,14 +72,16 @@ void Oscillator::synthesizeWaveform(AudioBuffer<float> buffer)
             tableReadIndex = tableReadIndex-tableSize; // wrap around readIndex if table size is exceeded
     }
     
-    if(buffer.getNumChannels() > 1) // if more than one channels are available copy the same array
-    {
-        for(int ch = 1; ch < buffer.getNumChannels(); ch++)
-        {
-            for (int sample = 0; sample < buffer.getNumSamples(); sample++)
-                buff[ch][sample] = buff[ch-1][sample];
-        }
-    }
+//    if(numberOfChannels > 1) // if more than one channels are available copy the same array of samples
+//    {
+//        for(int ch = 1; ch < numberOfChannels; ch++)
+//        {
+//            for (int sample = 0; sample < samplesPerFrame; sample++)
+//                output[ch][sample] = output[ch-1][sample];
+//        }
+//    }
+
+    return output;
     
 }
 

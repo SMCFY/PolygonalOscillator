@@ -83,9 +83,9 @@ void OscComponent::markAsActive()
 	toFront(true);
 }
 
-void OscComponent::synthWaveform(AudioBuffer<float> buffer)
+float** OscComponent::synthWaveform(const int& numberOfChannels, const int& samplesPerFrame)
 {
-    osc->synthesizeWaveform(buffer);
+    return osc->synthesizeWaveform(numberOfChannels, samplesPerFrame);
 }
 
 //==============================================================================

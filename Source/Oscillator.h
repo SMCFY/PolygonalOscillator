@@ -21,7 +21,7 @@ public:
 	~Oscillator();
 
 	void generateWavetable();
-	void synthesizeWaveform(AudioBuffer<float> buffer);
+	float** synthesizeWaveform(const int& numberOfChannels, const int& samplesPerFrame);
 
 	//void updateParams(const int& f0, const float& n, const float& t, const float& phaseOffset, const float& r);
 	void updateFreq(const int& f0);

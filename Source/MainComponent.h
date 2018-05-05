@@ -33,8 +33,11 @@ public:
 private:
 
     int fs; // sampling rate
+    int numberOfChannels; // number of output channels
     int samplesPerFrame; // number of samples per frame
-    float** outputFrame; // array to hold synthesized waveforms
+
+    float** outputFrame; // output buffer
+    
 
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
     void removeOscillator(const String& id);

@@ -20,12 +20,8 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 {
     fs = sampleRate;
     samplesPerFrame = samplesPerBlockExpected;
-    
-    outputFrame = new float*[numberOfChannels];
-    for (int ch = 0; ch < numberOfChannels; ch++)
-        outputFrame[ch] = new float(samplesPerFrame);
 
-    outputBuffer = AudioBuffer<float>(numberOfChannels, samplesPerFrame);
+    synthBuff = AudioBuffer<float>(1, samplesPerFrame); // initialize oscillator output buffer with a single channel
     
     // This function will be called when the audio device is started, or when
     // its settings (i.e. sample rate, block size, etc) are changed.
@@ -43,12 +39,11 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     
     for (int i = 0; i < oscillatorBank.size(); i++)
     {
-        oscillatorBank[i]->synthWaveform(outputBuffer);
+        oscillatorBank[i]->synthWaveform(synthBuff.getWritePointer(0), samplesPerFrame); // pass a pointer to the output buffer
 
+        for (int ch=0; ch < numberOfChannels; ch++)
+            bufferToFill.buffer->addFrom(ch, 0, synthBuff, 0, 0, samplesPerFrame, 1.0f/float(oscillatorBank.size())); // add the oscillator outputs to the output buffer with equal weights
     }
-    
-    if(oscillatorBank.size() != 0)
-        bufferToFill.buffer->copyFrom(0, 0, outputBuffer, 0, 0, 256);
 
 }
 

@@ -21,9 +21,8 @@ public:
 	~Oscillator();
 
 	void generateWavetable();
-	void synthesizeWaveform(AudioBuffer<float> buff);
+	void synthesizeWaveform(float* buff, const int& buffSize);
 
-	//void updateParams(const int& f0, const float& n, const float& t, const float& phaseOffset, const float& r);
 	void updateFreq(const int& f0);
 	void updateOrder(const float& n);
 	void updateTeeth(const float& t);

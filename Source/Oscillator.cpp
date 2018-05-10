@@ -41,16 +41,10 @@ void Oscillator::generateWavetable()
 
 }
 
-void Oscillator::synthesizeWaveform(AudioBuffer<float> buff)
+void Oscillator::synthesizeWaveform(float* buff, const int& buffSize)
 {   
     
-//    float** output = new float*[numberOfChannels]; // init output buffer
-//    for (int ch = 0; ch < numberOfChannels; ch++)
-//        output[ch] = new float(samplesPerFrame);
-
-    float** output = buff.getArrayOfWritePointers();
-    
-    for (int sample = 0; sample < buff.getNumSamples(); sample++)
+    for (int sample = 0; sample < buffSize; sample++)
     {
         int i1 = floor(tableReadIndex); // sample index before the readIndex
         int i2; // sample index after the readIndex
@@ -65,7 +59,7 @@ void Oscillator::synthesizeWaveform(AudioBuffer<float> buff)
         
         float frac = tableReadIndex - i1; // sample fraction
         
-        output[0][sample] = v2 + (frac*(v2-v1)); // linear interpolation to calculate output samples for a single channel
+        buff[sample] = v2 + (frac*(v2-v1)); // linear interpolation to calculate output samples for a single channel
             
             
         tableReadIndex = tableReadIndex + tableDelta; // increment read index
@@ -73,30 +67,9 @@ void Oscillator::synthesizeWaveform(AudioBuffer<float> buff)
             tableReadIndex = tableReadIndex-tableSize; // wrap around readIndex if table size is exceeded
     }
     
-    if(buff.getNumChannels() > 1) // if more than one channels are available copy the same array of samples
-    {
-        for(int ch = 1; ch < buff.getNumChannels(); ch++)
-        {
-            for (int sample = 0; sample < buff.getNumSamples(); sample++)
-                output[ch][sample] = output[ch-1][sample];
-        }
-    }
-    
 }
 
 //==============================================================================
-
-//void Oscillator::updateParams(const int& f0, const float& n, const float& t, const float& phaseOffset, const float& r)
-//{
-//	this->f0 = f0;
-//	this->n = n;
-//	this->t = t;
-//	this->phaseOffset = phaseOffset;
-//	this->r = r;
-//
-//
-//	generateWavetable();
-//}
 
 void Oscillator::updateFreq(const int& f0)
 {

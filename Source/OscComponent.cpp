@@ -5,11 +5,11 @@
 OscComponent::OscComponent(const Point<float>& p, int fs)
 : osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
 orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 1.0f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.0f, 1.0f)),
-compSize(200), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
+compSize(250), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
 {
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
-    size = compSize;
+    size = compSize-50;
     
     drawPoly();
     
@@ -58,8 +58,8 @@ Point<float> OscComponent::mapToScreenCoords(const Point<float>& coords)
     p.x *= size/2; // scale
     p.y *= size/2;
 
-    p.x+= (compSize-size)/2; // offset
-    p.y+= (compSize-size)/2;
+    p.x+= (getWidth()-size)/2; // offset
+    p.y+= (getHeight()-size)/2;
     
     return p;
 }
@@ -69,6 +69,7 @@ void OscComponent::setActive()
 	active = true;
     col = col.withSaturation(1.0f);
     col = col.withBrightness(1.0f);
+
 }
 
 void OscComponent::setInactive()
@@ -76,6 +77,7 @@ void OscComponent::setInactive()
     active = false;
     col = col.withSaturation(0.4f);
     col = col.withBrightness(0.4f);
+   
 }
 
 void OscComponent::markAsActive()
@@ -99,6 +101,7 @@ void OscComponent::timerCallback()
 
 void OscComponent::paint(Graphics& g)
 {
+    //g.fillAll(Colours::red);
     renderPoly(g);
 }
 
@@ -117,12 +120,21 @@ void OscComponent::mouseDown(const MouseEvent& e)
     {
         markAsActive();
         dragger.startDraggingComponent(this, e);
+
+        //setBounds(getX()-compSize/2, getY()-compSize/2, compSize*2, compSize*2); // resize component to facilitate interactions
+        //drawPoly();
     }
 }
 
 void OscComponent::mouseUp(const MouseEvent& e)
 {
     touchHandler->rmTouchPoint(e);
+
+    if(touchHandler->getNumPoints() == 0)
+    {
+        //setBounds(getX()+compSize/2, getY()+compSize/2, compSize, compSize); // reset size
+        //drawPoly();
+    }
 }
 
 void OscComponent::mouseDrag(const MouseEvent& e)

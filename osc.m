@@ -4,12 +4,12 @@ tableSize = 256;
 %waveTable = zeros(1, tableSize);
 
 % core parameters
-N = 4; % schlalfi numerator
-np = 1; % schalfi denominator (number of periods)
+N = 5; % schlalfi numerator
+np = 2; % schalfi denominator (number of periods)
 n = N/np; % order (schlalfi symbol) (n>2)
 f0 = 80/np; % f0
 T = 0.0; % teeth
-phaseOffset = pi/3; % initial phase
+phaseOffset = pi/2; % initial phase
 R = 1; % scale
 
 
@@ -38,7 +38,7 @@ waveTableAA = waveTable; % anti-aliased waveform
 disc = zeros(1, N); % location of discontinuities expressed in samples
 
 for k=1:N % iterates through discontinuities
-    disc(k) = mod(tableSize/N*k+1 - tableSize/(2*pi / phaseOffset), tableSize);
+    disc(k) = mod(tableSize/N*k+1 - tableSize/np/(2*pi / phaseOffset), tableSize);
     
     % boundary samples (wrapped around the wavetable)
     n3 = mod(ceil(disc(k)), tableSize);

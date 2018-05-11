@@ -4,7 +4,7 @@ tableSize = 256;
 %waveTable = zeros(1, tableSize);
 
 % core parameters
-N = 5; % schlalfi numerator
+N = 4; % schlalfi numerator
 np = 1; % schalfi denominator (number of periods)
 n = N/np; % order (schlalfi symbol) (n>2)
 f0 = 80/np; % f0
@@ -18,12 +18,12 @@ theta = 2*pi*t*np; % phase angle
 p = zeros(1, tableSize); % radial amplitude of geometry
  
 for i=1:tableSize % geometry
-    p(i) = cos(pi/n) / cos(mod(theta(i), 2*pi/n) -pi/n + T) * R; % (modified Eq1) 
+    p(i) = cos(pi/n) / cos(mod(theta(i)+phaseOffset, 2*pi/n) -pi/n + T) * R; % (modified Eq1) 
 end
 
 poly = zeros(1, tableSize); % sampled geometry
 for i=1:tableSize
-    poly(i) = p(i) * (cos(theta(i)+phaseOffset) + 1j*sin(theta(i)+phaseOffset));
+    poly(i) = p(i) * (cos(theta(i)) + 1j*sin(theta(i)));
 end
 
 waveTable = imag(poly); % projection to y axis
@@ -38,7 +38,7 @@ waveTableAA = waveTable; % anti-aliased waveform
 disc = zeros(1, N); % location of discontinuities expressed in samples
 
 for k=1:N % iterates through discontinuities
-    disc(k) = tableSize/N*k+1;
+    disc(k) = mod(tableSize/N*k+1 - tableSize/(2*pi / phaseOffset), tableSize);
     
     % boundary samples (wrapped around the wavetable)
     n3 = mod(ceil(disc(k)), tableSize);

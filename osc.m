@@ -4,12 +4,12 @@ tableSize = 256;
 %waveTable = zeros(1, tableSize);
 
 % core parameters
-N = 5; % schlalfi numerator
-np = 2; % schalfi denominator (number of periods)
+N = 3; % schlalfi numerator
+np = 1; % schalfi denominator (number of periods)
 n = N/np; % order (schlalfi symbol) (n>2)
 f0 = 80/np; % f0
 T = 0.0; % teeth
-phaseOffset = pi/2; % initial phase
+phaseOffset = pi / 2; % initial phase
 R = 1; % scale
 
 
@@ -106,8 +106,8 @@ for i=1:length(y) % synhtesis from wavetable
     else
         i2 = i1+1;
     end
-    v1 = waveTableAA(i1);
-    v2 = waveTableAA(i2);
+    v1 = waveTable(i1);
+    v2 = waveTable(i2);
   
     frac = readIndex - i1; % sample fraction
     
@@ -121,8 +121,18 @@ for i=1:length(y) % synhtesis from wavetable
     
 end
 
-
-
 %soundsc(y, fs);
-%figure();
-%plot(y);
+figure();
+plot(y);
+
+audioDiscNum = fs*duration/(fs/f0)*N; % number of discontinuities in the audio signal
+discAudio = zeros(1, audioDiscNum); % location of discontinuities in the audio signal expressed in samples
+
+for i=1:audioDiscNum
+    discAudio(i) = fs/(f0*N)*i - fs/f0/np/(2*pi / phaseOffset);
+end
+
+for i=1:audioDiscNum
+    line([discAudio(i),discAudio(i)], [-1,1],'Color','red','LineStyle',':');
+end
+

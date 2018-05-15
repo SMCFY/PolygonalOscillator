@@ -30,9 +30,9 @@ void Oscillator::generateWavetable()
 
 	for(int i=0; i<tableSize; i++)
 	{
-        float p = std::cos(pi/n) / std::cos(fmod(theta.phase, 2*pi/n) - pi/n + t) * r; // radial amplitude
-        polygon[i].real(p * cos(theta.phase+phaseOffset));
-        polygon[i].imag(p * sin(theta.phase+phaseOffset));
+        float p = std::cos(pi/n) / std::cos(fmod(theta.phase+phaseOffset, 2*pi/n) - pi/n + t) * r; // radial amplitude
+        polygon[i].real(p * cos(theta.phase));
+        polygon[i].imag(p * sin(theta.phase));
         
         wavetable[i] = polygon[i].imag(); // projection to wavetable
         

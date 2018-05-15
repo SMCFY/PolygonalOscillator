@@ -1,7 +1,7 @@
 %% synthesis
 
 % core parameters
-a = 3; % schlalfi numerator
+a = 5; % schlalfi numerator
 b = 1; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
 f0 = 440; % f0
@@ -11,7 +11,7 @@ R = 1; % scale
 
 fs = 44100;
 dPhase = 2*pi * (f0/fs); % phase increment
-sizeP = ceil(fs/f0); % period in samples
+sizeP = ceil(fs/f0*b); % period in samples
 
 theta = phaseOffset; % init phase radial amplitude calculation
 p = zeros(1, fs); % radial amplitude of geometry
@@ -42,7 +42,7 @@ for k=1:a % iterate through the discontinuities in the first period
     
     disc(k) = fs/(n*f0)*k - fs/f0/(2*pi/phaseOffset) + 1;
    
-    % boundary sample (wrapped around a single period)
+    % boundary samples
     n3 = ceil(disc(k));
     n1 = n3-2;
     n2 = n1+1;
@@ -51,7 +51,7 @@ for k=1:a % iterate through the discontinuities in the first period
     d = n3 - disc(k); % fractional delay between the discontinuity and the next sample 
     
     u = -2*tan(pi/n) * cos((2*pi/n)*k); % slope of the derivative at the discontinuity
-   
+    
     % 4-point polyBLAMP residual coefficients
     p0 = d^5/120;
     p1 = (-3*d^5 +5*d^4 +10*d^3 +10*d^2 +5*d +1)/120;
@@ -102,4 +102,4 @@ for i=1:length(y)
     end
 end
 
-soundsc(y, fs);
+%soundsc(y, fs);

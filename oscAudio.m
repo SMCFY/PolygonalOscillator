@@ -2,9 +2,9 @@
 
 % core parameters
 a = 5; % schlalfi numerator
-b = 1; % schalfi denominator (a > 2b)
+b = 2; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
-f0 = 440; % f0
+f0 = 400; % f0
 T = 0.0; % teeth
 phaseOffset = 0; % initial phase
 R = 1; % scale
@@ -13,10 +13,11 @@ fs = 44100;
 dPhase = 2*pi * (f0/fs); % phase increment
 sizeP = ceil(fs/f0*b); % period in samples
 
-theta = phaseOffset; % init phase radial amplitude calculation
+theta = phaseOffset; % init phase with offset, for radial amplitude calculation
 p = zeros(1, fs); % radial amplitude of geometry
 for i=1:fs % geometry
-    p(i) = cos(pi/n) / cos(mod(theta, 2*pi/n) -pi/n + T) * R;
+    %p(i) = cos(pi/n) / cos(mod(theta, 2*pi/n) -pi/n + T) * R;
+    p(i) = cos(pi/n) / cos(2*pi/n * mod(theta*n/(2*pi), 1) -pi/n + T) * R;
     theta = theta+dPhase;
 end
 
@@ -50,7 +51,7 @@ for k=1:a % iterate through the discontinuities in the first period
     
     d = n3 - disc(k); % fractional delay between the discontinuity and the next sample 
     
-    u = -2*tan(pi/n) * cos((2*pi/n)*k); % slope of the derivative at the discontinuity
+    u = abs(-2*tan(pi/n) * cos(dPhase*disc(k))); % slope of the derivative at the discontinuity
     
     % 4-point polyBLAMP residual coefficients
     p0 = d^5/120;
@@ -67,13 +68,13 @@ end
 
 %% plot
 
-subplot(2,1,1);
+subplot(2,2,1);
 plot(real(poly), imag(poly), 'r');
 axis([-1 1 -1 1]);
 axis equal;
 title('Complex plane');
 
-subplot(2,1,2);
+subplot(2,2,3);
 graph1 = plot(waveform, 'b');
 axis([1 sizeP -1 1]);
 hold on;
@@ -83,8 +84,47 @@ graph3 = plot(waveformAA, '-.m');
 for i=1:a
     line([disc(i),disc(i)], [-1,1],'Color','red','LineStyle',':');
 end
-legend([graph1, graph2, graph3],{'Waveform', 'Derivative', 'Anti-aliased waveform'});
+legend([graph1, graph2, graph3],{'Original waveform', 'Derivative', 'Anti-aliased waveform'});
 title('Projection');
+
+
+fftSize = 2^13;
+
+subplot(2,2,2);
+plot(db(abs(fft(waveform, fs))), 'k');
+axis([0 fs/2 -40 60]);
+title('Original waveform');
+
+subplot(2,2,4);
+plot(db(abs(fft(waveformAA, fs))), 'k');
+axis([0 fs/2 -40 60]);
+title('Anti-aliased waveform');
+
+%% SNR
+
+magSpec = abs(fft(waveform));
+%magSpec = magSpec - max(magSpec);
+dFreq = length(magSpec)/fs; % frequency resolution
+
+eSig = 0; % energy of the marmonics
+fH = [f0, zeros(1, 20)]; % frequency of the first k harmonics and the fundamental (Hz)
+for k=2:length(fH) % sum of the energy of the first k harmonics
+    fH(k) = f0*(2*floor(k/2)+1+(n-2)*(1+floor((k-1)/2))); 
+    
+    eSig = eSig + ( magSpec(f0*dFreq+1) + magSpec(fH(k)*dFreq+1) )^2;
+end 
+
+magEn = 0; % summed energy over the whole spectrum
+for i=1:length(magSpec)/2
+    magEn = magEn + magSpec(i)^2;
+end
+
+%eNoise = sum(magSpec(1:length(magSpec)/2).^2) - eSig;
+eNoise = magEn - eSig; % energy of the noise
+
+snr = eSig / eNoise;
+disp(snr);
+
 
 %% output
 

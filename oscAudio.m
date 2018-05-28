@@ -2,7 +2,7 @@
 
 % core parameters
 a = 5; % schlalfi numerator
-b = 2; % schalfi denominator (a > 2b)
+b = 1; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
 f0 = 400; % f0
 T = 0.0; % teeth
@@ -51,7 +51,7 @@ for k=1:a % iterate through the discontinuities in the first period
     
     d = n3 - disc(k); % fractional delay between the discontinuity and the next sample 
     
-    u = abs(-2*tan(pi/n) * cos(dPhase*disc(k))); % slope of the derivative at the discontinuity
+    u = abs(-2*tan(pi/n) * cos(dPhase*disc(k))+phaseOffset); % slope of the derivative at the discontinuity
     
     % 4-point polyBLAMP residual coefficients
     p0 = d^5/120;
@@ -87,9 +87,7 @@ end
 legend([graph1, graph2, graph3],{'Original waveform', 'Derivative', 'Anti-aliased waveform'});
 title('Projection');
 
-
-fftSize = 2^13;
-
+% magnitude spectrum comparison
 subplot(2,2,2);
 plot(db(abs(fft(waveform, fs))), 'k');
 axis([0 fs/2 -40 60]);
@@ -103,7 +101,7 @@ title('Anti-aliased waveform');
 %% SNR
 
 magSpec = abs(fft(waveform));
-%magSpec = magSpec - max(magSpec);
+%magSpec = magSpec - max(magSpec); % offset
 dFreq = length(magSpec)/fs; % frequency resolution
 
 eSig = 0; % energy of the marmonics
@@ -115,16 +113,14 @@ for k=2:length(fH) % sum of the energy of the first k harmonics
 end 
 
 magEn = 0; % summed energy over the whole spectrum
-for i=1:length(magSpec)/2
+for i=1:length(magSpec)
     magEn = magEn + magSpec(i)^2;
 end
 
-%eNoise = sum(magSpec(1:length(magSpec)/2).^2) - eSig;
 eNoise = magEn - eSig; % energy of the noise
 
 snr = eSig / eNoise;
 disp(snr);
-
 
 %% output
 
@@ -134,7 +130,7 @@ y = zeros(1, duration*fs);
 readIndex = 1;
 
 for i=1:length(y)
-    y(i) = waveform(readIndex);
+    y(i) = waveformAA(readIndex);
     
     readIndex = mod(readIndex+1, sizeP);
     if(readIndex == 0)

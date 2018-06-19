@@ -23,25 +23,21 @@ public:
 	int getNumPoints(); // return the total number of touch points on the screen
     void updatePoints(const MouseEvent& e); // update the location of touch points
 
-	float getRadius();
-	float getAngle();
-	float getRadiusChange();
-	float getAngleChange();
+	float getRadiusDelta();
+	float getAngleDelta();
 
 private:
 
     float rMax; // maximum anchor radius
     float rMin; // minimum anchor radius
     
-    float r2; // anchor radius 2 finger
-    float alpha2; // anchor angle 2 fingers
-    float r3; // anchor radius 3 fingers
-    float alpha3; // anchor angle 3 fingers
+    // float r2; // anchor radius 2 finger
+    // float alpha2; // anchor angle 2 fingers
+    // float r3; // anchor radius 3 fingers
+    // float alpha3; // anchor angle 3 fingers
 
-//    float r2delta; // anchor radius increment 2 finger
-//    float alpha2delta; // anchor angle increment 2 finger
-//    float r3delta;
-//    float alpha3delta;
+    float radRef; // reference for incremental radius change
+    float alphaRef; // reference for incremental angle change
 
     float getAbsNormalizedDist(); // calculates the normalized absolute distance between 2 touch points
     float getNormalizedAngle(); // calculates the normalized angle between 2 touch points

@@ -4,13 +4,18 @@
 
 OscComponent::OscComponent(const Point<float>& p, int fs)
 : osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
-orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 1.0f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.0f, 1.0f)),
 compSize(250), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
 {
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
     size = compSize-50;
     
+    f0Ref = osc->getFreq();
+    orderRef = osc->getOrder();
+    teethRef = osc->getTeeth();
+    phaseRef = osc->getPhaseOffset();
+    rRef = osc->getRadius();
+
     drawPoly();
     
     startTimerHz(30);
@@ -130,6 +135,15 @@ void OscComponent::mouseUp(const MouseEvent& e)
 {
     touchHandler->rmTouchPoint(e);
 
+    // update parameter reference for incremental change
+    f0Ref = osc->getFreq();
+    orderRef = osc->getOrder();
+    teethRef = osc->getTeeth();
+    phaseRef = osc->getPhaseOffset();
+    rRef = osc->getRadius();
+
+
+
     if(touchHandler->getNumPoints() == 0)
     {
         //setBounds(getX()+compSize/2, getY()+compSize/2, compSize, compSize); // reset size
@@ -147,15 +161,15 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             dragger.dragComponent(this, e, nullptr);
             break;
         case 2:
-            osc->updateRadius(touchHandler->getRadius());
-            osc->updateOrder(orderRange.clipValue(abs(touchHandler->getAngle()*20))); // clip the scaled absolute angle to the given range and updtate respective oscilator parameter
+            osc->updateRadius(rRef + touchHandler->getRadiusDelta()); // ref + delta
+            osc->updateOrder(orderRef + touchHandler->getAngleDelta()*20);
 
             osc->generateWavetable();
             drawPoly(); // re-draw polygon
             break;
         case 3:
-            osc->updateTeeth(touchHandler->getRadius());
-            osc->updatePhaseOffset(phaseOffRange.clipValue(touchHandler->getAngle()*2));
+            osc->updateTeeth(teethRef + touchHandler->getRadiusDelta());
+            osc->updatePhaseOffset(phaseRef - touchHandler->getAngleDelta()*2);
 
             osc->generateWavetable();
             drawPoly();

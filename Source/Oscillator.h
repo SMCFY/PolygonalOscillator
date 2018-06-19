@@ -24,10 +24,16 @@ public:
 	void synthesizeWaveform(float* buff, const int& buffSize);
 
 	void updateFreq(const int& f0);
-	void updateOrder(const float& n);
+	void updateOrder(const int& n);
 	void updateTeeth(const float& t);
 	void updatePhaseOffset(const float& phaseOffset);
 	void updateRadius(const float& r);
+
+	int getFreq();
+	int getOrder();
+	float getTeeth();
+	float getPhaseOffset();
+	float getRadius();
 	int getTablesize();
 	Point<float> getDrawCoords(const int& i); // returns the cartesian coordinates of the sampled geometry for rendering
 
@@ -49,6 +55,13 @@ private:
 
 	float* wavetable;
 	std::complex<float>* polygon; // sampled polygon
+
+ 	// predefined ranges for oscillator parameters
+	Range<int> freqRange;
+	Range<int> orderRange;
+    Range<float> teethRange;
+    Range<float> phaseOffRange;
+    Range<float> radRange;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscillator);
 };

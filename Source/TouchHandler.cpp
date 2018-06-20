@@ -56,6 +56,11 @@ void TouchHandler::updatePoints(const MouseEvent& e)
     }
 }
 
+Point<float> TouchHandler::getTouchPos(const int& i)
+{
+    return arrayOfTouchPoints[i]->pos;
+}
+
 //==============================================================================
 
 float TouchHandler::getRadiusDelta()

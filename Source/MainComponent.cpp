@@ -59,6 +59,11 @@ void MainComponent::releaseResources()
 void MainComponent::paint (Graphics& g)
 {
     g.fillAll(Colour().fromRGB(30, 30, 30));
+    
+    for(int i=0; i<oscillatorBank.size(); i++)
+    {
+        oscillatorBank[i]->renderTouchPoints(g);
+    }
 
 }
 
@@ -118,6 +123,11 @@ void MainComponent::setActiveComponent(const String& id)
 void MainComponent::mouseDoubleClick(const MouseEvent &event)
 {
     createOscillator(event.position);
+}
+
+void MainComponent::mouseDrag(const MouseEvent& e)
+{
+    repaint();
 }
 
 //=============================================================================

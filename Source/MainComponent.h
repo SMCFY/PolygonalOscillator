@@ -26,6 +26,7 @@ public:
     void resized() override;
 
     void mouseDoubleClick(const MouseEvent &event) override;
+    void mouseDrag(const MouseEvent& e) override;
 
     void componentBroughtToFront(Component& component) override; // called when an oscillator instances is selected
     void componentMovedOrResized (Component &component, bool wasMoved, bool wasResized) override; // called when an oscillator is dragged

@@ -4,6 +4,7 @@
 
 OscComponent::OscComponent(const Point<float>& p, int fs)
 : osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
+touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.3f), touchIndicatorCol(Colours::white),
 compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
 {
 	position = p;
@@ -29,45 +30,6 @@ OscComponent::~OscComponent()
 }
 
 //==============================================================================
-
-void OscComponent::renderPoly(Graphics& g)
-{
-
-    g.setColour(col);
-    g.strokePath(polyPath, PathStrokeType(lineThickness));
-    
-}
-
-void OscComponent::drawPoly()
-{
-    polyPath.clear();
-    polyPath.startNewSubPath(mapToScreenCoords(Point<float>(osc->getDrawCoords(0)))); // starting the path at the first point
-
-    for (int i=1; i < osc->getTablesize(); i++)
-    {
-
-        polyPath.lineTo(mapToScreenCoords(Point<float>(osc->getDrawCoords(i)))); // add line segment to consequitve points
-        
-    }
-
-}
-
-Point<float> OscComponent::mapToScreenCoords(const Point<float>& coords)
-{
-
-    Point<float> p = coords;
-    
-    p.x+= 1.0f; // nudge the range to 0 to 2
-    p.y+= 1.0f;
-
-    p.x *= size/2; // scale
-    p.y *= size/2;
-
-    p.x+= (getWidth()-size)/2; // offset
-    p.y+= (getHeight()-size)/2;
-    
-    return p;
-}
 
 void OscComponent::setActive()
 {
@@ -95,6 +57,21 @@ void OscComponent::synthWaveform(float* buff, const int& buffSize)
     return osc->synthesizeWaveform(buff, buffSize);
 }
 
+void OscComponent::renderTouchPoints(Graphics& g)
+{
+    g.setColour(touchIndicatorCol);
+    g.setOpacity(touchIndicatorAlpha);
+    for(int i = 0; i < touchHandler->getNumPoints(); i++)
+    {
+        g.drawEllipse(touchHandler->getTouchPos(i).x-touchIndicatorSize/2, touchHandler->getTouchPos(i).y-touchIndicatorSize/2, touchIndicatorSize, touchIndicatorSize, touchIndicatorThickness);
+        
+        if(i == 1 || i == 2) // 2 or 3 touchpoints
+        {
+            g.drawDashedLine(Line<float>(touchHandler->getTouchPos(0), touchHandler->getTouchPos(i)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
+        }
+    }
+}
+
 //==============================================================================
 
 void OscComponent::timerCallback()
@@ -106,7 +83,6 @@ void OscComponent::timerCallback()
 
 void OscComponent::paint(Graphics& g)
 {
-    //g.fillAll(Colours::red);
     renderPoly(g);
 }
 
@@ -177,4 +153,43 @@ void OscComponent::mouseDrag(const MouseEvent& e)
         default:
             break;
     }
+}
+
+//==============================================================================
+
+void OscComponent::renderPoly(Graphics& g)
+{
+
+    g.setColour(col);
+    g.strokePath(polyPath, PathStrokeType(lineThickness));
+    
+}
+
+void OscComponent::drawPoly()
+{
+    polyPath.clear();
+    polyPath.startNewSubPath(mapToScreenCoords(Point<float>(osc->getDrawCoords(0)))); // starting the path at the first point
+
+    for (int i=1; i < osc->getTablesize(); i++)
+    {
+        polyPath.lineTo(mapToScreenCoords(Point<float>(osc->getDrawCoords(i)))); // add line segment to consequitve points
+    }
+
+}
+
+Point<float> OscComponent::mapToScreenCoords(const Point<float>& coords)
+{
+
+    Point<float> p = coords;
+    
+    p.x+= 1.0f; // nudge the range to 0 to 2
+    p.y+= 1.0f;
+
+    p.x *= size/2; // scale
+    p.y *= size/2;
+
+    p.x+= (getWidth()-size)/2; // offset
+    p.y+= (getHeight()-size)/2;
+    
+    return p;
 }

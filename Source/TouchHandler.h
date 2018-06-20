@@ -22,6 +22,7 @@ public:
 	void rmTouchPoint(const MouseEvent& e);
 	int getNumPoints(); // return the total number of touch points on the screen
     void updatePoints(const MouseEvent& e); // update the location of touch points
+    Point<float> getTouchPos(const int& i); // returns screen position for indexed touch point
 
 	float getRadiusDelta();
 	float getAngleDelta();

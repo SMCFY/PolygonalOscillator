@@ -20,13 +20,11 @@ public:
     OscComponent(const Point<float>& p, int fs);
 	~OscComponent();
 
-    void renderPoly(Graphics& g); // renders the geometry
-    void drawPoly(); // draws the geometry from line segments
-    Point<float> mapToScreenCoords(const Point<float>& coords); // maps the polygon coordinates to the component's screen coordinates
     void setActive();
     void setInactive();
     void markAsActive();
     void synthWaveform(float* buff, const int& buffSize); // calls Oscillator::synthesizeWaveform()
+    void renderTouchPoints(Graphics& g); // renders location of touch points and their distances
     
 	void timerCallback() override;
 
@@ -39,6 +37,10 @@ public:
     
 private:
 
+    void renderPoly(Graphics& g); // renders the geometry
+    void drawPoly(); // draws the geometry from line segments
+    Point<float> mapToScreenCoords(const Point<float>& coords); // maps the polygon coordinates to the component's screen coordinates
+
 	bool active;
 	
 	Oscillator* osc;
@@ -48,10 +50,16 @@ private:
 	float compSize; // size of the component
 	Point<float> position; // component position relative to parent component
 	
-    float lineThickness;
+    float lineThickness; // line thickness of polygon
 	float size; // size of rendered polygon
 	Colour col;
 	Path polyPath; // sequence of line segments to draw the geometry
+
+    float touchIndicatorSize;
+    float touchIndicatorThickness;
+    float touchIndicatorAlpha;
+    Colour touchIndicatorCol;
+    float touchIndicatorDash[2] = {15.0f, 10.0f};;
 
     int f0Ref;
     float orderRef;

@@ -4,7 +4,7 @@
 
 OscComponent::OscComponent(const Point<float>& p, int fs)
 : osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
-compSize(250), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
+compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
 {
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
@@ -168,7 +168,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             drawPoly(); // re-draw polygon
             break;
         case 3:
-            osc->updateTeeth(teethRef + touchHandler->getRadiusDelta());
+            osc->updateTeeth(teethRef - touchHandler->getRadiusDelta());
             osc->updatePhaseOffset(phaseRef - touchHandler->getAngleDelta()*2);
 
             osc->generateWavetable();

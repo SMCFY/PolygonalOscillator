@@ -53,6 +53,7 @@ private:
     float tableDelta; // read increment for wavetable
     float tableReadIndex; // init table read index
 
+    float* p; // vector of radial amplitude
 	float* wavetable;
 	std::complex<float>* polygon; // sampled polygon
 

@@ -3,9 +3,10 @@
 #include "Oscillator.h"
 
 Oscillator::Oscillator(int fs)
-: pi(MathConstants<float>::pi), tableSize(512), tableReadIndex(0), f0(Random().nextInt(Range<int>(110, 880))), n(4), t(0.0f), phaseOffset(0.0f), r(1.0f),
-freqRange(Range<int>(60, 2000)), orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 1.0f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.0f, 1.0f))
+: pi(MathConstants<float>::pi), tableSize(512), tableReadIndex(0), f0(Random().nextInt(Range<int>(110, 880))), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f),
+freqRange(Range<int>(60, 2000)), orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 0.9f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.1f, 0.9f))
 {
+    p = new float[tableSize];
 	wavetable = new float[tableSize];
     polygon = new std::complex<float>[tableSize];
     
@@ -18,6 +19,7 @@ freqRange(Range<int>(60, 2000)), orderRange(Range<int>(3, 30)), teethRange(Range
 
 Oscillator::~Oscillator()
 {
+    delete p;
 	delete wavetable;
 	delete polygon;
 }
@@ -26,20 +28,40 @@ Oscillator::~Oscillator()
 
 void Oscillator::generateWavetable()
 {
+    bool isClipped = false;
+    float pMax = 0; // maximum radial amplitude
     
     dsp::Phase<float> theta;
-
 	for(int i=0; i<tableSize; i++)
 	{
-        float p = std::cos(pi/n) / std::cos(fmod(theta.phase+phaseOffset, 2*pi/n) - pi/n + t) * r; // radial amplitude
-        polygon[i].real(p * cos(theta.phase));
-        polygon[i].imag(p * sin(theta.phase));
-        
-        wavetable[i] = polygon[i].imag(); // projection to wavetable
-        
-        theta.advance(2*pi/tableSize); // increment phase
-	}
+        p[i] = std::cos(pi/n) / std::cos(fmod(theta.phase+phaseOffset, 2*pi/n) - pi/n + t) * r; // radial amplitude
 
+        if(p[i] > 1) // checks for clipping
+        {
+            isClipped = true;
+            pMax = jmax(p[i], pMax); // store maximum clipping radial amplitude
+        }
+
+        theta.advance(2*pi/tableSize); // increment phase
+    }
+
+    if(isClipped) // normalize polygon if clipped
+    {
+        for (int i = 0; i < tableSize; i++)
+            p[i] /= (pMax*radRange.getEnd());
+    }
+
+    theta.reset(); // reset phase
+    for(int i=0; i<tableSize; i++)
+    {
+        // sample polygon
+        polygon[i].real(p[i] * cos(theta.phase));
+        polygon[i].imag(p[i] * sin(theta.phase));
+
+        wavetable[i] = polygon[i].imag(); // projection to wavetable
+
+        theta.advance(2*pi/tableSize); // increment phase
+    }
 }
 
 void Oscillator::synthesizeWaveform(float* buff, const int& buffSize)

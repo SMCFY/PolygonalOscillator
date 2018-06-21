@@ -100,10 +100,9 @@ void OscComponent::mouseDown(const MouseEvent& e)
     if(touchHandler->getNumPoints() == 1) // selection and dragging of oscillators
     {
         markAsActive();
-        dragger.startDraggingComponent(this, e);
 
-        //setBounds(getX()-compSize/2, getY()-compSize/2, compSize*2, compSize*2); // resize component to facilitate interactions
-        //drawPoly();
+        setBounds(getX()-compSize/2, getY()-compSize/2, compSize*2, compSize*2); // resize component to facilitate interactions
+        drawPoly();
     }
 }
 
@@ -122,8 +121,8 @@ void OscComponent::mouseUp(const MouseEvent& e)
 
     if(touchHandler->getNumPoints() == 0)
     {
-        //setBounds(getX()+compSize/2, getY()+compSize/2, compSize, compSize); // reset size
-        //drawPoly();
+        setBounds(getX()+compSize/2, getY()+compSize/2, compSize, compSize); // reset size
+        drawPoly();
     }
 }
 
@@ -134,7 +133,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
     switch(touchHandler->getNumPoints()) // mapping based on number of touch points
     {
         case 1:
-            dragger.dragComponent(this, e, nullptr);
+            setCentrePosition(e.getScreenX(), e.getScreenY());
             break;
         case 2:
             osc->updateRadius(rRef + touchHandler->getRadiusDelta()); // ref + delta

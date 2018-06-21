@@ -140,7 +140,7 @@ void MainComponent::componentBroughtToFront(Component& component)
 
 void MainComponent::componentMovedOrResized (Component &component, bool wasMoved, bool wasResized)
 {
-    if(component.getBottom() > getHeight()+component.getHeight()/4) // delete oscillator if its dragged to the bottom of the screen
+    if(component.getBottom() > getHeight()+component.getHeight()*0.4) // delete oscillator if its dragged to the bottom of the screen
     {
         String targetId = component.getComponentID();
         removeOscillator(targetId);

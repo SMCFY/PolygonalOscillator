@@ -44,7 +44,6 @@ private:
 	bool active;
 	
 	Oscillator* osc;
-	ComponentDragger dragger;
 	TouchHandler* touchHandler;
 
 	float compSize; // size of the component
@@ -59,7 +58,7 @@ private:
     float touchIndicatorThickness;
     float touchIndicatorAlpha;
     Colour touchIndicatorCol;
-    float touchIndicatorDash[2] = {15.0f, 10.0f};;
+    float touchIndicatorDash[2] = {15.0f, 10.0f};
 
     int f0Ref;
     float orderRef;

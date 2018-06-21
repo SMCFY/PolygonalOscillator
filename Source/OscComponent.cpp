@@ -175,6 +175,7 @@ void OscComponent::drawPoly()
         polyPath.lineTo(mapToScreenCoords(Point<float>(osc->getDrawCoords(i)))); // add line segment to consequitve points
     }
 
+    polyPath.lineTo(mapToScreenCoords(Point<float>(osc->getDrawCoords(0)))); // connect last and first point to fill gap
 }
 
 Point<float> OscComponent::mapToScreenCoords(const Point<float>& coords)

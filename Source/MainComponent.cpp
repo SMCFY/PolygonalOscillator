@@ -1,7 +1,7 @@
 
 
 #include "MainComponent.h"
-bool once;
+
 MainComponent::MainComponent()
 : numberOfChannels(2), cutoff(2000), filterOrder(21)
 {
@@ -45,6 +45,12 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     dsp::AudioBlock<float> block(*bufferToFill.buffer); // init block with output buffer
     lpf.process(dsp::ProcessContextReplacing<float>(block)); // process block
 
+    seq.updateCounter();
+    if(seq.modCounter(60))
+    {
+        std::cout << "TRIGGER" << std::endl;
+    }
+    
 }
 
 void MainComponent::releaseResources()

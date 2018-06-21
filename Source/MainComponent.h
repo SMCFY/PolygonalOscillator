@@ -10,6 +10,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "OscComponent.h"
+#include "Sequencer.h"
 
 class MainComponent : public AudioAppComponent, public ComponentListener
 {
@@ -38,7 +39,6 @@ private:
     int samplesPerFrame; // number of samples per frame
 
     AudioBuffer<float> synthBuff; // stores the output of individual oscillators
-    
 
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
     void removeOscillator(const String& id);
@@ -50,6 +50,7 @@ private:
     float cutoff; // cutoff frequency
     int filterOrder;
     
+    Sequencer seq;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent);
 };

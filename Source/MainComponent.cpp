@@ -24,9 +24,8 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     synthBuff = AudioBuffer<float>(1, samplesPerFrame); // initialize oscillator output buffer with a single channel
     
     dsp::ProcessSpec spec = {sampleRate, (uint32)samplesPerFrame, (uint32)numberOfChannels}; // filter specification
-    fir.state = dsp::FilterDesign<float>::designFIRLowpassWindowMethod (cutoff, fs, filterOrder,
-                                                                        dsp::WindowingFunction<float>::blackman); // filter design
-    fir.prepare(spec);
+    lpf.state = dsp::FilterDesign<float>::designFIRLowpassWindowMethod (cutoff, fs, filterOrder, dsp::WindowingFunction<float>::blackman); // filter design
+    lpf.prepare(spec);
 
 }
 
@@ -44,7 +43,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     }
     
     dsp::AudioBlock<float> block(*bufferToFill.buffer); // init block with output buffer
-    fir.process(dsp::ProcessContextReplacing<float>(block)); // process block
+    lpf.process(dsp::ProcessContextReplacing<float>(block)); // process block
 
 }
 
@@ -146,83 +145,5 @@ void MainComponent::componentMovedOrResized (Component &component, bool wasMoved
         String targetId = component.getComponentID();
         removeOscillator(targetId);
     }
-
-}
-
-//=============================================================================
-
-
-const String MainComponent::getName() const
-{
-    return "MCC";
-}
-
-void MainComponent::prepareToPlay(double sampleRate, int estimatedSamplesPerBlock)
-{
-
-}
-
-void MainComponent::processBlock(AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
-{
-    
-}
-
-double MainComponent::getTailLengthSeconds() const
-{
-    return 0;
-}
-
-bool MainComponent::acceptsMidi() const
-{
-    return true;
-}
-
-bool MainComponent::producesMidi() const
-{
-    return true;
-}
-
-AudioProcessorEditor* MainComponent::createEditor()
-{
-    return nullptr;
-}
-
-bool MainComponent::hasEditor() const
-{
-    return false;
-}
-
-int MainComponent::getNumPrograms()
-{
-    return 1;
-}
-
-int MainComponent::getCurrentProgram()
-{
-    return 0;
-}
-
-void MainComponent::setCurrentProgram(int index)
-{
-
-}
-
-const String MainComponent::getProgramName(int index)
-{
-    return "default";
-}
-
-void MainComponent::changeProgramName(int index, const String& newName)
-{
-
-}
-
-void MainComponent::getStateInformation (juce::MemoryBlock& destData)
-{
-
-}
-
-void MainComponent::setStateInformation (const void *data, int sizeInBytes)
-{
 
 }

@@ -44,14 +44,31 @@ private:
     void removeOscillator(const String& id);
     void setActiveComponent(const String& id); // sets the selected oscillator active, and deactivates the rest
     
-    OwnedArray<OscComponent> oscillatorBank;
+    Sequencer seq;
+
+    typedef struct OscInstance
+    {
+        OscComponent* oscComp; // oscillator component
+        int tempo; // trigger rate
+        bool envelope;
+        OscInstance(const Point<float>& p, int fs)
+        {
+            oscComp = new OscComponent(p, fs);
+            tempo = 80;
+            envelope = false;
+        }
+        ~OscInstance()
+        {
+            delete oscComp;
+        }
+    } OscInstance;
+
+    OwnedArray<OscInstance> oscillatorBank;
 
     dsp::ProcessorDuplicator<dsp::FIR::Filter<float>, dsp::FIR::Coefficients<float>> lpf; // filter
     float cutoff; // cutoff frequency
     int filterOrder;
     dsp::WindowingFunction<float>::WindowingMethod filterWindow;
-
-    Sequencer seq;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent);
 };

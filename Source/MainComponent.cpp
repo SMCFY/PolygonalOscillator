@@ -36,7 +36,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     
     for (int i = 0; i < oscillatorBank.size(); i++)
     {
-        oscillatorBank[i]->synthWaveform(synthBuff.getWritePointer(0), samplesPerFrame); // pass a pointer to the output buffer
+        oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0), samplesPerFrame); // pass a pointer to the output buffer
 
         for (int ch=0; ch < numberOfChannels; ch++)
             bufferToFill.buffer->addFrom(ch, 0, synthBuff, 0, 0, samplesPerFrame, 1.0f/float(oscillatorBank.size())); // add the oscillator outputs to the output buffer with equal weights
@@ -68,7 +68,7 @@ void MainComponent::paint (Graphics& g)
     
     for(int i=0; i<oscillatorBank.size(); i++)
     {
-        oscillatorBank[i]->renderTouchPoints(g);
+        oscillatorBank[i]->oscComp->renderTouchPoints(g);
     }
 
 }
@@ -87,17 +87,18 @@ void MainComponent::createOscillator(const Point<float>& p)
     int id = 0;
     for(int i=0; i<oscillatorBank.size(); i++) // iterates through the oscillator instances
     {
-        oscillatorBank[i]->setComponentID(String(id)); // reassigns ids to all instances
-        oscillatorBank[i]->setInactive(); // deactivates existing oscillators
+        oscillatorBank[i]->oscComp->setComponentID(String(id)); // reassigns ids to all instances
+        oscillatorBank[i]->oscComp->setInactive(); // deactivates existing oscillators
         id++;
     }
 
-    OscComponent* oscComp = new OscComponent(p, fs);
-    oscComp->setComponentID(String(id)); // highest id goes to the most recent instance
-    oscComp->addComponentListener(this);
-    oscComp->setActive(); // set the newest instance as active
-    addAndMakeVisible(oscComp);
-    oscillatorBank.add(oscComp);
+    OscInstance* o = new OscInstance(p, fs);
+    
+    o->oscComp->setComponentID(String(id)); // highest id goes to the most recent instance
+    o->oscComp->addComponentListener(this);
+    o->oscComp->setActive(); // set the newest instance as active
+    addAndMakeVisible(o->oscComp);
+    oscillatorBank.add(o);
 
     repaint();
 }
@@ -106,7 +107,7 @@ void MainComponent::removeOscillator(const String& id)
 {
     for(int i=0; i<oscillatorBank.size(); i++)
     {
-        if(oscillatorBank[i]->getComponentID() == id)
+        if(oscillatorBank[i]->oscComp->getComponentID() == id)
             oscillatorBank.removeObject(oscillatorBank[i]);
     }
     
@@ -116,10 +117,10 @@ void MainComponent::setActiveComponent(const String& id)
 {
     for(int i=0; i<oscillatorBank.size(); i++)
     {
-        if(oscillatorBank[i]->getComponentID() == id)
-            oscillatorBank[i]->setActive();
+        if(oscillatorBank[i]->oscComp->getComponentID() == id)
+            oscillatorBank[i]->oscComp->setActive();
         else
-            oscillatorBank[i]->setInactive();
+            oscillatorBank[i]->oscComp->setInactive();
     }
 
 }

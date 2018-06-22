@@ -84,45 +84,38 @@ void MainComponent::resized()
 
 void MainComponent::createOscillator(const Point<float>& p)
 {
-    int id = 0;
-    for(int i=0; i<oscillatorBank.size(); i++) // iterates through the oscillator instances
-    {
-        oscillatorBank[i]->oscComp->setComponentID(String(id)); // reassigns ids to all instances
-        oscillatorBank[i]->oscComp->setInactive(); // deactivates existing oscillators
-        id++;
-    }
-
     OscInstance* o = new OscInstance(p, fs);
     
-    o->oscComp->setComponentID(String(id)); // highest id goes to the most recent instance
+    o->oscComp->setComponentID(String(oscillatorBank.size())); // new instance gets id mathcing its future index in the array
     o->oscComp->addComponentListener(this);
-    o->oscComp->setActive(); // set the newest instance as active
     addAndMakeVisible(o->oscComp);
     oscillatorBank.add(o);
+
+    setActiveComponent(String(oscillatorBank.size()-1));
 
     repaint();
 }
 
 void MainComponent::removeOscillator(const String& id)
 {
-    for(int i=0; i<oscillatorBank.size(); i++)
-    {
-        if(oscillatorBank[i]->oscComp->getComponentID() == id)
-            oscillatorBank.removeObject(oscillatorBank[i]);
-    }
+    oscillatorBank.removeObject(oscillatorBank[id.getIntValue()]);
     
+    int newId = 0;
+    for(int i=0; i<oscillatorBank.size(); i++) // iterates through the oscillator instances
+    {
+        oscillatorBank[i]->oscComp->setComponentID(String(newId)); // assigns new id to all instances
+        newId++;
+    }
+
 }
 
 void MainComponent::setActiveComponent(const String& id)
 {
-    for(int i=0; i<oscillatorBank.size(); i++)
-    {
-        if(oscillatorBank[i]->oscComp->getComponentID() == id)
-            oscillatorBank[i]->oscComp->setActive();
-        else
-            oscillatorBank[i]->oscComp->setInactive();
-    }
 
+    for(int i=0; i<oscillatorBank.size(); i++)
+        oscillatorBank[i]->oscComp->setInactive(); // sets all components inactive
+
+    oscillatorBank[id.getIntValue()]->oscComp->setActive();
 }
 
 //=============================================================================
@@ -147,12 +140,13 @@ void MainComponent::componentBroughtToFront(Component& component)
 
 void MainComponent::componentMovedOrResized (Component &component, bool wasMoved, bool wasResized)
 {
+    //oscillatorBank[component.getComponentID().getIntValue()]->tempo = component.getScreenX() / getWidth(); // change tempo according to component's screen coordinates
+    
     if(component.getBottom() > getHeight()+component.getHeight()*0.4) // delete oscillator if its dragged to the bottom of the screen
     {
         String targetId = component.getComponentID();
         removeOscillator(targetId);
     }
 
-    // update tempo here based on screen coordinates
-
+    
 }

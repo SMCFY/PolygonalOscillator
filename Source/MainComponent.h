@@ -49,8 +49,9 @@ private:
     dsp::ProcessorDuplicator<dsp::FIR::Filter<float>, dsp::FIR::Coefficients<float>> lpf; // filter
     float cutoff; // cutoff frequency
     int filterOrder;
-    
+    dsp::WindowingFunction<float>::WindowingMethod filterWindow;
+
     Sequencer seq;
-    
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent);
 };

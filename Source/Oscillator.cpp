@@ -36,7 +36,7 @@ void Oscillator::generateWavetable()
 	{
         p[i] = std::cos(pi/n) / std::cos(fmod(theta.phase+phaseOffset, 2*pi/n) - pi/n + t) * r; // radial amplitude
 
-        if(p[i] > 1) // checks for clipping
+        if(p[i] > radRange.getEnd()) // checks for clipping (radial amplitude out of range)
         {
             isClipped = true;
             pMax = jmax(p[i], pMax); // store maximum clipping radial amplitude
@@ -48,7 +48,7 @@ void Oscillator::generateWavetable()
     if(isClipped) // normalize polygon if clipped
     {
         for (int i = 0; i < tableSize; i++)
-            p[i] /= (pMax*radRange.getEnd());
+            p[i] = p[i]/pMax*radRange.getEnd(); // normalize and cap to range
     }
 
     theta.reset(); // reset phase

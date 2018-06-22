@@ -3,7 +3,7 @@
 #include "MainComponent.h"
 
 MainComponent::MainComponent()
-: numberOfChannels(2), cutoff(2000), filterOrder(21)
+: numberOfChannels(2), cutoff(4000), filterOrder(21), filterWindow(dsp::WindowingFunction<float>::blackman)
 {
     setSize(800, 600);
     setAudioChannels(0, numberOfChannels);
@@ -24,7 +24,7 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     synthBuff = AudioBuffer<float>(1, samplesPerFrame); // initialize oscillator output buffer with a single channel
     
     dsp::ProcessSpec spec = {sampleRate, (uint32)samplesPerFrame, (uint32)numberOfChannels}; // filter specification
-    lpf.state = dsp::FilterDesign<float>::designFIRLowpassWindowMethod (cutoff, fs, filterOrder, dsp::WindowingFunction<float>::blackman); // filter design
+    lpf.state = dsp::FilterDesign<float>::designFIRLowpassWindowMethod (cutoff, fs, filterOrder, filterWindow); // filter design
     lpf.prepare(spec);
 
 }
@@ -151,5 +151,7 @@ void MainComponent::componentMovedOrResized (Component &component, bool wasMoved
         String targetId = component.getComponentID();
         removeOscillator(targetId);
     }
+
+    // update tempo here based on screen coordinates
 
 }

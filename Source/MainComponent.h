@@ -43,23 +43,22 @@ private:
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
     void removeOscillator(const String& id);
     void setActiveComponent(const String& id); // sets the selected oscillator active, and deactivates the rest
-    
-    Sequencer seq;
 
     typedef struct OscInstance
     {
         OscComponent* oscComp; // oscillator component
-        int tempo; // trigger rate
+        Sequencer* seq;
         bool envelope;
         OscInstance(const Point<float>& p, int fs)
         {
             oscComp = new OscComponent(p, fs);
-            tempo = 80;
+            seq = new Sequencer();
             envelope = false;
         }
         ~OscInstance()
         {
             delete oscComp;
+            delete seq;
         }
     } OscInstance;
 

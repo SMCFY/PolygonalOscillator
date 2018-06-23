@@ -18,13 +18,15 @@ public:
 	~Sequencer();
 
 	void updateCounter(); // updates the internal counter
-	bool modCounter(const int& tempo); // returns a counter within a specified interval
-
+	bool tick(); // returns ticks according to set tempo
+	void calculateTempo(const float& normCoordX);
 
 private:
 
 	uint32 msCounter; // millisecond counter
 	int mod; // remainder from modulo
+	int tempo;
+	Range<int> tempoRange;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Sequencer);
 };

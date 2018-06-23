@@ -36,6 +36,13 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     
     for (int i = 0; i < oscillatorBank.size(); i++)
     {
+        oscillatorBank[i]->seq->updateCounter();
+        if(oscillatorBank[i]->seq->tick()) // trigger envelope according to set tempo
+        {
+            std::cout << i << std::endl;
+            std::cout << std::endl;
+        }
+        
         oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0), samplesPerFrame); // pass a pointer to the output buffer
 
         for (int ch=0; ch < numberOfChannels; ch++)
@@ -44,12 +51,6 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     
     dsp::AudioBlock<float> block(*bufferToFill.buffer); // init block with output buffer
     lpf.process(dsp::ProcessContextReplacing<float>(block)); // process block
-
-    seq.updateCounter();
-    if(seq.modCounter(60))
-    {
-        std::cout << "TRIGGER" << std::endl;
-    }
     
 }
 
@@ -140,8 +141,9 @@ void MainComponent::componentBroughtToFront(Component& component)
 
 void MainComponent::componentMovedOrResized (Component &component, bool wasMoved, bool wasResized)
 {
-    //oscillatorBank[component.getComponentID().getIntValue()]->tempo = component.getScreenX() / getWidth(); // change tempo according to component's screen coordinates
-    
+    float normCoordX = float(component.getPosition().getX()+component.getWidth()/2) / float(getWidth()); // normalised position of the components center on the x axis
+    oscillatorBank[component.getComponentID().getIntValue()]->seq->calculateTempo(normCoordX); // change tempo according to component's center position
+
     if(component.getBottom() > getHeight()+component.getHeight()*0.4) // delete oscillator if its dragged to the bottom of the screen
     {
         String targetId = component.getComponentID();

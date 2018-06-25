@@ -5,7 +5,7 @@
 OscComponent::OscComponent(const Point<float>& p, int fs)
 : osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
 touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.3f), touchIndicatorCol(Colours::white),
-compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f))
+compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f)), alphaRange(Range<float>(0.2f, 0.9f))
 {
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
@@ -34,17 +34,13 @@ OscComponent::~OscComponent()
 void OscComponent::setActive()
 {
 	active = true;
-    col = col.withSaturation(1.0f);
-    col = col.withBrightness(1.0f);
+    // indicator for active instance goes here
 
 }
 
 void OscComponent::setInactive()
 {
     active = false;
-    col = col.withSaturation(0.4f);
-    col = col.withBrightness(0.4f);
-   
 }
 
 void OscComponent::markAsActive()
@@ -85,14 +81,18 @@ void OscComponent::setSaturation(const float& saturation)
 
 void OscComponent::setTransparency(const float& alpha)
 {
-    this->setAlpha(alpha);
+    setAlpha(alphaRange.clipValue(alpha));
 }
 
 //==============================================================================
 
 void OscComponent::timerCallback()
 {
-    setAlpha(*ramp);
+    if(touchHandler->getNumPoints() == 0)
+        setTransparency(*ramp);
+    else
+        setTransparency(1.0f); // render full opaque on interaction
+    
 	repaint();
 }
 
@@ -146,7 +146,7 @@ void OscComponent::mouseUp(const MouseEvent& e)
 void OscComponent::mouseDrag(const MouseEvent& e)
 {
     touchHandler->updatePoints(e);
-    
+
     switch(touchHandler->getNumPoints()) // mapping based on number of touch points
     {
         case 1:

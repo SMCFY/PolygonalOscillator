@@ -66,7 +66,7 @@ void MainComponent::releaseResources()
 //==============================================================================
 void MainComponent::paint (Graphics& g)
 {
-    g.fillAll(Colour().fromRGB(30, 30, 30));
+    g.fillAll(Colour().fromRGB(30, 30, 30)); // background
     
     for(int i=0; i<oscillatorBank.size(); i++)
     {

@@ -60,6 +60,7 @@ private:
 	Colour col;
 	Path polyPath; // sequence of line segments to draw the geometry
     float* ramp; // pointer to the envelope's amplitude
+    Range<float> alphaRange;
 
     float touchIndicatorSize;
     float touchIndicatorThickness;

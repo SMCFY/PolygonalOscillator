@@ -3,15 +3,15 @@
 #include "Envelope.h"
 
 Envelope::Envelope()
-: aMin(0.001f), trig(0), noteOn(0), amplitude(0), fs(44100), rampDown(0), attack(0), decay(0), release(0), envelopeType(Envelope::env::ADSR),
-attackTime(100), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(300)
+: aMin(0.001f), trig(0), noteOn(0), amplitude(1), fs(44100), rampDown(0), attack(0), decay(0), release(0), envelopeType(Envelope::env::ADSR),
+attackTime(50), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(200)
 {
 
 }
 
 Envelope::Envelope(Envelope::env type)
-: aMin(0.001f), trig(0), noteOn(0), amplitude(0), fs(44100), rampDown(0), attack(0), decay(0), release(0),
-attackTime(100), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(300)
+: aMin(0.001f), trig(0), noteOn(0), amplitude(1), fs(44100), rampDown(0), attack(0), decay(0), release(0),
+attackTime(50), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(200)
 {
 	envelopeType = type;
 }
@@ -200,7 +200,7 @@ void Envelope::setSamplingRate(const int& fs)
 
 //=============================================================================
 
-float Envelope::getAmplitude()
+float* Envelope::getAmplitude()
 {
-    return amplitude;
+    return &amplitude;
 }

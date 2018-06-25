@@ -71,11 +71,28 @@ void OscComponent::renderTouchPoints(Graphics& g)
         }
     }
 }
+//==============================================================================
+
+void OscComponent::setBrightness(const float& brightness)
+{
+    col = col.withBrightness(brightness);
+}
+
+void OscComponent::setSaturation(const float& saturation)
+{
+    col = col.withSaturation(saturation);
+}
+
+void OscComponent::setTransparency(const float& alpha)
+{
+    this->setAlpha(alpha);
+}
 
 //==============================================================================
 
 void OscComponent::timerCallback()
 {
+    setAlpha(*ramp);
 	repaint();
 }
 
@@ -152,6 +169,12 @@ void OscComponent::mouseDrag(const MouseEvent& e)
         default:
             break;
     }
+}
+//==============================================================================
+
+void OscComponent::mapRamp(float* amp)
+{
+    ramp = amp;
 }
 
 //==============================================================================

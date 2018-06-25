@@ -25,6 +25,10 @@ public:
     void markAsActive();
     void synthWaveform(float* buff, const int& buffSize); // calls Oscillator::synthesizeWaveform()
     void renderTouchPoints(Graphics& g); // renders location of touch points and their distances
+
+    void setBrightness(const float& brightness);
+    void setSaturation(const float& saturation);
+    void setTransparency(const float& alpha);
     
 	void timerCallback() override;
 
@@ -35,6 +39,8 @@ public:
     void mouseUp(const MouseEvent& e) override;
     void mouseDrag(const MouseEvent& e) override;
     
+    void mapRamp(float* amp); 
+
 private:
 
     void renderPoly(Graphics& g); // renders the geometry
@@ -53,6 +59,7 @@ private:
 	float size; // size of rendered polygon
 	Colour col;
 	Path polyPath; // sequence of line segments to draw the geometry
+    float* ramp; // pointer to the envelope's amplitude
 
     float touchIndicatorSize;
     float touchIndicatorThickness;

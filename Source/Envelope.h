@@ -32,7 +32,7 @@ class Envelope
 		void setReleaseTime(const int& r);
 		void setSamplingRate(const int& fs);
     
-        float getAmplitude();
+        float* getAmplitude(); // returns a pointer to the envelope's amplitude
 
 	private:
 		float amplitude;

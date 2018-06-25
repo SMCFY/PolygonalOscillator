@@ -55,6 +55,7 @@ private:
             oscComp = new OscComponent(p, fs);
             seq = new Sequencer();
             env = new Envelope(Envelope::AR);
+            env->setSamplingRate(fs);
         }
         ~OscInstance()
         {

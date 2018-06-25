@@ -19,11 +19,11 @@ class Envelope
 		Envelope(Envelope::env type);
 		~Envelope();
 
-		void trigger(bool trig);
+		void trigger();
 		float envelopeAR(); // AR envelope
 		float envelopeADSR(); // ADSR envelope
 
-		void process(AudioBuffer<float> buffer); // processses an audio buffer based on the envelope type
+		void process(AudioBuffer<float>& buffer); // processses an audio buffer based on the envelope type
 
 		void setAttackTime(const int& a);
 		void setPeak(const float& p);

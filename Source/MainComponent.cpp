@@ -35,21 +35,22 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     bufferToFill.clearActiveBufferRegion();
     
     for (int i = 0; i < oscillatorBank.size(); i++)
-    {
-        oscillatorBank[i]->seq->updateCounter();
+    {   
+        oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0), samplesPerFrame); // synthesize waveform to oscillator output buffer
+
+        oscillatorBank[i]->seq->updateCounter(); // update counter
         if(oscillatorBank[i]->seq->tick()) // trigger envelope according to set tempo
         {
-            std::cout << i << std::endl;
-            std::cout << std::endl;
+            oscillatorBank[i]->env->trigger(); // trigger
         }
         
-        oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0), samplesPerFrame); // pass a pointer to the output buffer
+        oscillatorBank[i]->env->process(synthBuff); // process oscillator output buffer with respective envelope
 
         for (int ch=0; ch < numberOfChannels; ch++)
             bufferToFill.buffer->addFrom(ch, 0, synthBuff, 0, 0, samplesPerFrame, 1.0f/float(oscillatorBank.size())); // add the oscillator outputs to the output buffer with equal weights
     }
     
-    dsp::AudioBlock<float> block(*bufferToFill.buffer); // init block with output buffer
+    dsp::AudioBlock<float> block(*bufferToFill.buffer); // init audio block with output buffer
     lpf.process(dsp::ProcessContextReplacing<float>(block)); // process block
     
 }

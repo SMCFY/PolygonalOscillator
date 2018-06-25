@@ -3,15 +3,15 @@
 #include "Envelope.h"
 
 Envelope::Envelope()
-: aMin(0.001f), trig(0), noteOn(0), amplitude(0), fs(44100), rampDown(0), envelopeType(Envelope::env::ADSR),
-attackTime(500), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(500)
+: aMin(0.001f), trig(0), noteOn(0), amplitude(0), fs(44100), rampDown(0), attack(0), decay(0), release(0), envelopeType(Envelope::env::ADSR),
+attackTime(100), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(300)
 {
 
 }
 
 Envelope::Envelope(Envelope::env type)
-: aMin(0.001f), trig(0), noteOn(0), amplitude(0), fs(44100), rampDown(0),
-attackTime(500), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(500)
+: aMin(0.001f), trig(0), noteOn(0), amplitude(0), fs(44100), rampDown(0), attack(0), decay(0), release(0),
+attackTime(100), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(300)
 {
 	envelopeType = type;
 }
@@ -23,9 +23,9 @@ Envelope::~Envelope()
 
 //=============================================================================
 
-void Envelope::trigger(bool trig)
+void Envelope::trigger()
 {
-	this->trig = trig;
+	trig = true;
 
 	if(!trig) // note off
 		noteOn = 0;
@@ -33,8 +33,8 @@ void Envelope::trigger(bool trig)
 
 float Envelope::envelopeAR() // AR
 {
-    relDelta = pow(aMin, peak / std::round(fs * (releaseTime/1000)));
-
+    relDelta = pow(aMin, peak / std::round(fs * (releaseTime/1000.0f))); // exponential release
+    
     if(trig && !noteOn) // init on trigger/re-trigger
 	{
  		attack = 1;
@@ -45,7 +45,7 @@ float Envelope::envelopeAR() // AR
     	if(amplitude >= aMin) // ramp down envelope on re-trigger
     		rampDown = 1;
 
-    	attDelta = peak / std::round(fs * (attackTime/1000));
+    	attDelta = peak / std::round(fs * (attackTime/1000.0f)); // linear attack
    	}
 
     if (rampDown)
@@ -88,7 +88,7 @@ float Envelope::envelopeAR() // AR
 
 float Envelope::envelopeADSR() // ADSR
 {
-    relDelta = pow(aMin, sustainLevel / std::round(fs * (releaseTime/1000)));
+    relDelta = pow(aMin, sustainLevel / std::round(fs * (releaseTime/1000.0f))); // exponential release
 
 	if(trig && !noteOn) // init on trigger/re-trigger
 	{
@@ -97,8 +97,8 @@ float Envelope::envelopeADSR() // ADSR
 		noteOn = 1; // sustain
     	release = 1;
 	    
-    	attDelta = peak / std::round(fs * (attackTime/1000));
-    	decDelta = pow(aMin, peak / std::round(fs * (decayTime/1000)));
+    	attDelta = peak / std::round(fs * (attackTime/1000.0f)); // linear attack
+    	decDelta = pow(aMin, peak / std::round(fs * (decayTime/1000.0f))); // exponential decay
    	}
 
 	if(attack) // attack phase
@@ -142,33 +142,7 @@ float Envelope::envelopeADSR() // ADSR
 
 //=============================================================================
 
-//void Envelope::generateRamp(float start, float end, int lengthInSamples, String type)
-//{
-//    if(type == "exp")
-//    {
-//        float k = pow(end, start / lengthInSamples);
-//        float val = start;
-//
-//        for (int i = 0; i < lengthInSamples; i++)
-//        {
-//            Envelope::ramp[i] = val;
-//            val *= k;
-//        }
-//    }
-//    else if(type == "lin")
-//    {
-//        float k = (end-start) / lengthInSamples;
-//        float val = start;
-//
-//        for (int i = 0; i < lengthInSamples; i++)
-//        {
-//            Envelope::ramp[i] = val;
-//            val += k;
-//        }
-//    }
-//}
-
-void Envelope::process(AudioBuffer<float> buffer)
+void Envelope::process(AudioBuffer<float>& buffer)
 {
     
 	float **outputFrame = buffer.getArrayOfWritePointers();
@@ -180,11 +154,11 @@ void Envelope::process(AudioBuffer<float> buffer)
 	    	switch (envelopeType)
 	    	{
             case AR:
-	    	outputFrame[ch][samp] *= envelopeAR();
+                    outputFrame[ch][samp] *= envelopeAR();
 	        break;
                     
             case ADSR:
-	        outputFrame[ch][samp] *= envelopeADSR();
+                    outputFrame[ch][samp] *= envelopeADSR();
 	        break;
             };
 	    }

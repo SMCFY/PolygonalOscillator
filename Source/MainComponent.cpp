@@ -142,8 +142,14 @@ void MainComponent::componentBroughtToFront(Component& component)
 
 void MainComponent::componentMovedOrResized (Component &component, bool wasMoved, bool wasResized)
 {
+    // tempo
     float normCoordX = float(component.getPosition().getX()+component.getWidth()/2) / float(getWidth()); // normalised position of the components center on the x axis
     oscillatorBank[component.getComponentID().getIntValue()]->seq->calculateTempo(normCoordX); // change tempo according to component's center position
+
+    // attack, release
+    float normCoordY = float(component.getPosition().getY()+component.getHeight()/2) / float(getHeight()); // normalised position of the components center on the y axis
+    oscillatorBank[component.getComponentID().getIntValue()]->env->setAttackTime(normCoordY*1000);
+    oscillatorBank[component.getComponentID().getIntValue()]->env->setReleaseTime(normCoordY*1000);
 
     if(component.getBottom() > getHeight()+component.getHeight()*0.4) // delete oscillator if its dragged to the bottom of the screen
     {

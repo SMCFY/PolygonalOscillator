@@ -43,6 +43,7 @@ public:
 
 private:
 
+    void renderSelectionIndicator(Graphics& g);
     void renderPoly(Graphics& g); // renders the geometry
     void drawPoly(); // draws the geometry from line segments
     Point<float> mapToScreenCoords(const Point<float>& coords); // maps the polygon coordinates to the component's screen coordinates

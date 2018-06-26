@@ -3,15 +3,15 @@
 #include "Envelope.h"
 
 Envelope::Envelope()
-: aMin(0.001f), trig(0), noteOn(0), amplitude(1), fs(44100), rampDown(0), attack(0), decay(0), release(0), envelopeType(Envelope::env::ADSR),
-attackTime(50), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(200)
+: aMin(0.001f), trig(0), noteOn(0), amplitude(1), fs(44100), attack(0), decay(0), release(0), envelopeType(Envelope::env::ADSR),
+attackTime(200), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(1000)
 {
 
 }
 
 Envelope::Envelope(Envelope::env type)
-: aMin(0.001f), trig(0), noteOn(0), amplitude(1), fs(44100), rampDown(0), attack(0), decay(0), release(0),
-attackTime(50), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(200)
+: aMin(0.001f), trig(0), noteOn(0), amplitude(1), fs(44100), attack(0), decay(0), release(0),
+attackTime(200), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(1000)
 {
 	envelopeType = type;
 }
@@ -41,24 +41,11 @@ float Envelope::envelopeAR() // AR
     	release = 1;
 
     	trig = 0;
-	
-    	if(amplitude >= aMin) // ramp down envelope on re-trigger
-    		rampDown = 1;
 
     	attDelta = peak / std::round(fs * (attackTime/1000.0f)); // linear attack
    	}
 
-    if (rampDown)
-    {
-    	amplitude *= 0.999;
-    	if (amplitude <= aMin)
-    	{
-    		amplitude = 0;
-    		rampDown = 0;
-        }
-    	return amplitude;
-    }
-	else if(attack) // attack phase
+	if(attack) // attack phase
 	{
         amplitude += attDelta;
         if(amplitude >= peak)

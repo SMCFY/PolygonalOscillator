@@ -34,7 +34,6 @@ OscComponent::~OscComponent()
 void OscComponent::setActive()
 {
 	active = true;
-    // indicator for active instance goes here
 
 }
 
@@ -87,12 +86,7 @@ void OscComponent::setTransparency(const float& alpha)
 //==============================================================================
 
 void OscComponent::timerCallback()
-{
-    if(touchHandler->getNumPoints() == 0)
-        setTransparency(*ramp);
-    else
-        setTransparency(1.0f); // render full opaque on interaction
-    
+{    
 	repaint();
 }
 
@@ -100,7 +94,13 @@ void OscComponent::timerCallback()
 
 void OscComponent::paint(Graphics& g)
 {
+    renderSelectionIndicator(g);
     renderPoly(g);
+
+    if(touchHandler->getNumPoints() == 0)
+        setTransparency(*ramp); // change transparency according to envelope
+    else
+        setTransparency(1.0f); // render full opaque on interaction
 }
 
 void OscComponent::resized()
@@ -179,12 +179,18 @@ void OscComponent::mapRamp(float* amp)
 
 //==============================================================================
 
+void OscComponent::renderSelectionIndicator(Graphics& g)
+{
+    if(active)
+    {
+        // selection indicator graphics
+    }
+}
+
 void OscComponent::renderPoly(Graphics& g)
 {
-
     g.setColour(col);
     g.strokePath(polyPath, PathStrokeType(lineThickness));
-    
 }
 
 void OscComponent::drawPoly()

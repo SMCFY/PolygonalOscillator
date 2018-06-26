@@ -3,7 +3,8 @@
 #include "MainComponent.h"
 
 MainComponent::MainComponent()
-: numberOfChannels(2), cutoff(4000), filterOrder(21), filterWindow(dsp::WindowingFunction<float>::blackman)
+: numberOfChannels(2), cutoff(4000), filterOrder(21), filterWindow(dsp::WindowingFunction<float>::blackman),
+attackMax(500), releaseMax(1000)
 {
     setSize(800, 600);
     setAudioChannels(0, numberOfChannels);
@@ -148,8 +149,8 @@ void MainComponent::componentMovedOrResized (Component &component, bool wasMoved
 
     // attack, release
     float normCoordY = float(component.getPosition().getY()+component.getHeight()/2) / float(getHeight()); // normalised position of the components center on the y axis
-    oscillatorBank[component.getComponentID().getIntValue()]->env->setAttackTime(normCoordY*1000);
-    oscillatorBank[component.getComponentID().getIntValue()]->env->setReleaseTime(normCoordY*1000);
+    oscillatorBank[component.getComponentID().getIntValue()]->env->setAttackTime(normCoordY*attackMax);
+    oscillatorBank[component.getComponentID().getIntValue()]->env->setReleaseTime(normCoordY*releaseMax);
 
     if(component.getBottom() > getHeight()+component.getHeight()*0.4) // delete oscillator if its dragged to the bottom of the screen
     {

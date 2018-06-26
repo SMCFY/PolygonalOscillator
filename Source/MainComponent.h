@@ -73,5 +73,7 @@ private:
     int filterOrder;
     dsp::WindowingFunction<float>::WindowingMethod filterWindow;
 
+    int attackMax, releaseMax; // maximum attack and release in milliseconds
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MainComponent);
 };

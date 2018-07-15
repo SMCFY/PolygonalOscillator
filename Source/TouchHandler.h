@@ -24,25 +24,28 @@ public:
     void updatePoints(const MouseEvent& e); // update the location of touch points
     Point<float> getTouchPos(const int& i); // returns screen position for indexed touch point
 
-	float getRadiusDelta();
-	float getAngleDelta();
+	float getAnchorRadiusDelta();
+	float getAnchorAngleDelta();
+	float getTriAreaDelta();
+	float getTriOrientationDelta();
 
 private:
 
     float rMax; // maximum anchor radius
     float rMin; // minimum anchor radius
-    
-    // float r2; // anchor radius 2 finger
-    // float alpha2; // anchor angle 2 fingers
-    // float r3; // anchor radius 3 fingers
-    // float alpha3; // anchor angle 3 fingers
+    float areaMax; // maximum triangle area
+    float areaMin; // minimum triangle area
 
-    float radRef; // reference for incremental radius change
-    float alphaRef; // reference for incremental angle change
+    float radRef; // reference for incremental change
+    float alphaRef;
+    float areaRef;
+    float orientationRef;
 
-    float getAbsNormalizedDist(); // calculates the normalized absolute distance between 2 touch points
+    float getNormalizedDist(); // calculates the normalized absolute distance between 2 touch points
     float getNormalizedAngle(); // calculates the normalized angle between 2 touch points
-    
+    float getNormalizedArea(); // calculates the area of a triangle defined by 3 touch points
+    float getNormalizedOrientation(); // calculates the orientation of a triangle defined by 3 touch points
+
 	typedef struct TouchPoint
 	{
 		Point<float> pos; // position

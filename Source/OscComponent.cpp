@@ -168,15 +168,15 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             setCentrePosition(e.getScreenX(), e.getScreenY());
             break;
         case 2:
-            osc->updateRadius(rRef + touchHandler->getRadiusDelta()); // ref + delta
-            osc->updateOrder(orderRef + touchHandler->getAngleDelta()*20);
+            osc->updateRadius(rRef + touchHandler->getAnchorRadiusDelta()); // ref + delta
+            osc->updateOrder(orderRef + touchHandler->getAnchorAngleDelta()*20);
 
             osc->generateWavetable();
             drawPoly(); // re-draw polygon
             break;
         case 3:
-            osc->updateTeeth(teethRef - touchHandler->getRadiusDelta());
-            osc->updatePhaseOffset(phaseRef - touchHandler->getAngleDelta()*2);
+            osc->updateTeeth(teethRef - touchHandler->getTriAreaDelta());
+            osc->updatePhaseOffset(phaseRef - touchHandler->getAnchorAngleDelta()*2);
 
             osc->generateWavetable();
             drawPoly();

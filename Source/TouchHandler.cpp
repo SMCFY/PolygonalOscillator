@@ -3,7 +3,7 @@
 #include "TouchHandler.h"
 
 TouchHandler::TouchHandler()
-: rMax(300.0f), rMin(60.0f)
+: rMax(300), rMin(60), areaMax(40000), areaMin(4000)
 {
 	
 }
@@ -20,10 +20,16 @@ void TouchHandler::addTouchPoint(const MouseEvent& e)
     TouchPoint* tp = new TouchPoint(e.source);
     arrayOfTouchPoints.add(tp);
 
-    if(getNumPoints() > 1) // update reference parameters
+    // update reference parameters
+    if(getNumPoints() == 2) // anchor
     {
-        radRef = getAbsNormalizedDist();
+        radRef = getNormalizedDist();
         alphaRef = getNormalizedAngle();
+    }
+    else if(getNumPoints() == 3) // polygon
+    {
+        areaRef = getNormalizedArea();
+        orientationRef = 0;
     }
 }
 
@@ -34,11 +40,17 @@ void TouchHandler::rmTouchPoint(const MouseEvent& e)
     	if(arrayOfTouchPoints[i]->sourceIndex == e.source.getIndex())
     		arrayOfTouchPoints.removeObject(arrayOfTouchPoints[i]);
     }
-
-    if(getNumPoints() > 1) // update reference parameters
+    
+    // update reference parameters
+    if(getNumPoints() == 2) // anchor
     {
-        radRef = getAbsNormalizedDist();
+        radRef = getNormalizedDist();
         alphaRef = getNormalizedAngle();
+    }
+    else if(getNumPoints() == 3) // polygon
+    {
+        areaRef = getNormalizedArea();
+        orientationRef = 0;
     }
 }
 
@@ -63,19 +75,29 @@ Point<float> TouchHandler::getTouchPos(const int& i)
 
 //==============================================================================
 
-float TouchHandler::getRadiusDelta()
+float TouchHandler::getAnchorRadiusDelta()
 {
-    return getAbsNormalizedDist() - radRef;
+    return getNormalizedDist() - radRef;
 }
 
-float TouchHandler::getAngleDelta()
+float TouchHandler::getAnchorAngleDelta()
 {
     return getNormalizedAngle() - alphaRef;
 }
 
+float TouchHandler::getTriAreaDelta()
+{
+    return getNormalizedArea() - areaRef;
+}
+
+float TouchHandler::getTriOrientationDelta()
+{
+    return getNormalizedOrientation();
+}
+
 //==============================================================================
 
-float TouchHandler::getAbsNormalizedDist()
+float TouchHandler::getNormalizedDist()
 {
     float dist = std::sqrt(std::pow(arrayOfTouchPoints[0]->pos.x-arrayOfTouchPoints[arrayOfTouchPoints.size()-1]->pos.x,2) + std::pow(arrayOfTouchPoints[0]->pos.y-arrayOfTouchPoints[arrayOfTouchPoints.size()-1]->pos.y,2));
     return jmin(jmax(dist-rMin, 0.0f), rMax) / rMax; // normalized, capped distance
@@ -87,4 +109,19 @@ float TouchHandler::getNormalizedAngle()
 	float y = arrayOfTouchPoints[arrayOfTouchPoints.size()-1]->pos.y-arrayOfTouchPoints[0]->pos.y;
     return atan2(y,x) / MathConstants<float>::pi;
 
+}
+
+float TouchHandler::getNormalizedArea()
+{
+    // coordinates of the triangle
+    Point<float> a = arrayOfTouchPoints[0]->pos; Point<float> b = arrayOfTouchPoints[1]->pos; Point<float> c = arrayOfTouchPoints[2]->pos;
+
+    float area = abs((a.x*(b.y-c.y) + b.x*(c.y-a.y) + c.x*(a.y-b.y)) / 2);
+    return jmin(jmax(area-areaMin, 0.0f), areaMax) / areaMax; // normalized, capped area
+}
+
+float TouchHandler::getNormalizedOrientation()
+{
+    return 0;
+    
 }

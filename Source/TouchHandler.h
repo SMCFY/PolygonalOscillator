@@ -23,6 +23,7 @@ public:
 	int getNumPoints(); // return the total number of touch points on the screen
     void updatePoints(const MouseEvent& e); // update the location of touch points
     Point<float> getTouchPos(const int& i); // returns screen position for indexed touch point
+	void sampleTouchPointCoordinates(const MouseEvent& e); // samples the coordinates of the specified touch point
 
 	float getAnchorRadiusDelta();
 	float getAnchorAngleDelta();
@@ -41,6 +42,9 @@ private:
     float areaRef;
     float rotationRef;
     Point<float> originRef; // the triangle's centroid defined by 3 touch points
+
+    Point<float> posBuffer[5]; // circular buffer storing touch point coordinates
+    int posIndex; // posBuffer index
 
     float getNormalizedDist(); // calculates the normalized absolute distance between 2 touch points
     float getNormalizedAngle(); // calculates the normalized angle between 2 touch points

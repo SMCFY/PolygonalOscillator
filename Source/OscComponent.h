@@ -75,5 +75,7 @@ private:
     float phaseRef;
     float rRef;
 
+    int idleCounter; // counter to keep track of idle time on interaction
+
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscComponent);
 };

@@ -3,7 +3,7 @@
 #include "TouchHandler.h"
 
 TouchHandler::TouchHandler()
-: rMax(300), rMin(60), areaMax(40000), areaMin(4000)
+: rMax(300), rMin(60), areaMax(40000), areaMin(4000), posIndex(0)
 {
 	
 }
@@ -78,6 +78,11 @@ Point<float> TouchHandler::getTouchPos(const int& i)
     return arrayOfTouchPoints[i]->pos;
 }
 
+void TouchHandler::sampleTouchPointCoordinates(const MouseEvent& e)
+{
+    posBuffer[posIndex % 5] = e.source.getScreenPosition();
+    posIndex++;
+}
 //==============================================================================
 
 float TouchHandler::getAnchorRadiusDelta()

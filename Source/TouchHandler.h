@@ -27,7 +27,7 @@ public:
 	float getAnchorRadiusDelta();
 	float getAnchorAngleDelta();
 	float getTriAreaDelta();
-	float getTriOrientationDelta();
+	float getTriRotationDelta();
 
 private:
 
@@ -39,12 +39,13 @@ private:
     float radRef; // reference for incremental change
     float alphaRef;
     float areaRef;
-    float orientationRef;
+    float rotationRef;
+    Point<float> originRef; // the triangle's centroid defined by 3 touch points
 
     float getNormalizedDist(); // calculates the normalized absolute distance between 2 touch points
     float getNormalizedAngle(); // calculates the normalized angle between 2 touch points
     float getNormalizedArea(); // calculates the area of a triangle defined by 3 touch points
-    float getNormalizedOrientation(); // calculates the orientation of a triangle defined by 3 touch points
+    float getNormalizedRotation(); // calculates the rotation of a triangle defined by 3 touch points
 
 	typedef struct TouchPoint
 	{

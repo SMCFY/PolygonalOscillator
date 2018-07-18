@@ -29,7 +29,12 @@ void TouchHandler::addTouchPoint(const MouseEvent& e)
     else if(getNumPoints() == 3) // polygon
     {
         areaRef = getNormalizedArea();
-        orientationRef = 0;
+
+        // calcualte the centroid for rotation
+        Point<float> a = arrayOfTouchPoints[0]->pos; Point<float> b = arrayOfTouchPoints[1]->pos; Point<float> c = arrayOfTouchPoints[2]->pos;
+        originRef = Point<float>((a.x+b.x+c.x)/3, (a.y+b.y+c.y)/3);
+
+        rotationRef = getNormalizedRotation();
     }
 }
 
@@ -50,7 +55,7 @@ void TouchHandler::rmTouchPoint(const MouseEvent& e)
     else if(getNumPoints() == 3) // polygon
     {
         areaRef = getNormalizedArea();
-        orientationRef = 0;
+        rotationRef = getNormalizedRotation();
     }
 }
 
@@ -90,9 +95,9 @@ float TouchHandler::getTriAreaDelta()
     return getNormalizedArea() - areaRef;
 }
 
-float TouchHandler::getTriOrientationDelta()
+float TouchHandler::getTriRotationDelta()
 {
-    return getNormalizedOrientation();
+    return getNormalizedRotation() - rotationRef;
 }
 
 //==============================================================================
@@ -120,8 +125,16 @@ float TouchHandler::getNormalizedArea()
     return jmin(jmax(area-areaMin, 0.0f), areaMax) / areaMax; // normalized, capped area
 }
 
-float TouchHandler::getNormalizedOrientation()
+float TouchHandler::getNormalizedRotation()
 {
-    return 0;
+    // coordinates of the triangle
+    Point<float> a = arrayOfTouchPoints[0]->pos; Point<float> b = arrayOfTouchPoints[1]->pos; Point<float> c = arrayOfTouchPoints[2]->pos;
+
+    // angle between each vertex and the centroid
+    float angle1 = atan2(originRef.y-a.y, originRef.x-a.x); 
+    float angle2 = atan2(originRef.y-b.y, originRef.x-b.x);
+    float angle3 = atan2(originRef.y-c.y, originRef.x-c.x);
+
+    return (angle1+angle2+angle3)/3 / MathConstants<float>::pi; // return the normalized mean of the 3 angles
     
 }

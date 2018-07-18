@@ -176,7 +176,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             break;
         case 3:
             osc->updateTeeth(teethRef - touchHandler->getTriAreaDelta());
-            osc->updatePhaseOffset(phaseRef - touchHandler->getAnchorAngleDelta()*2);
+            osc->updatePhaseOffset(phaseRef - touchHandler->getTriRotationDelta()*4);
 
             osc->generateWavetable();
             drawPoly();

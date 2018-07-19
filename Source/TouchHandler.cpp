@@ -3,7 +3,7 @@
 #include "TouchHandler.h"
 
 TouchHandler::TouchHandler()
-: rMax(300), areaMax(40000), radThreshold(50), posIndex(0)
+: rMax(300), areaMax(40000), radThreshold(20), radLimit(200), posIndex(0)
 {
 	
 }
@@ -74,9 +74,10 @@ Point<float> TouchHandler::getTouchPos(const int& i)
     return arrayOfTouchPoints[i]->pos;
 }
 
-void TouchHandler::sampleTouchPointCoordinates(const MouseEvent& e)
+void TouchHandler::sampleTouchPointCoordinate(const MouseEvent& e)
 {
-    posBuffer[posIndex % 10] = e.source.getScreenPosition();
+    posIndex = posIndex % 30;
+    posBuffer[posIndex] = e.source.getScreenPosition();
     posIndex++;
 }
 //==============================================================================
@@ -101,14 +102,43 @@ float TouchHandler::getTriRotationDelta()
     return getNormalizedRotation(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos) - rotationRef;
 }
 
-int TouchHandler::getCircularProgression()
+int TouchHandler::getCircularRegression()
 {
-    Point<float> cc = getCircleCentroid(posBuffer[(posIndex+1) % 10], posBuffer[(posIndex+5) % 10], posBuffer[(posIndex+9) % 10]);
+    Point<float> cc; // circle's centroid
+    float r = 0; // circle's radius
+    float xc = 0; // centroid's x coordinate
+    float yc = 0; // y coordinate
 
-    if(getDist(posBuffer[posIndex], cc) - getDist(posBuffer[posIndex+1], cc) < radThreshold) // difference between the circles's radius and the last points distance to the center
-        return 1;
+    int iterations = 3;
+    int sparsity = 6; // sample sparsity for centroid calculation (gap between two successive points in samples)
+    for(int i=1; i<=iterations; i++) // use the past nth sampled points to determine a circle
+    {
+        cc = getCircleCentroid(posBuffer[negMod(posIndex-i, 30)], posBuffer[negMod(posIndex-(i+sparsity), 30)], posBuffer[negMod(posIndex-(i+sparsity*2), 30)]);
+        r += getDist(cc, posBuffer[negMod(posIndex-i, 30)]);
+
+        xc += cc.x;
+        yc += cc.y;
+    }
+
+    r /= iterations; // mean radius
+    cc = Point<float>(xc/iterations, yc/iterations); // mean centroid
+
+    Point<float> currPos = posBuffer[posIndex];
+    Point<float> prevPos = posBuffer[negMod(posIndex-1, 30)];
+    
+    // fits current point to the circle's perimeter with given threshold
+    if(r < radLimit && getDist(posBuffer[posIndex], cc) - r < radThreshold)
+    {
+        // determine direction
+        if((cc.y < currPos.y && currPos.x > prevPos.x) || (cc.y > currPos.y && currPos.x < prevPos.x)) // clockwise
+            return 1;
+        else // anticlockwise
+            return -1;
+    }
     else
+    {
         return 0;
+    }
 }
 
 //==============================================================================
@@ -159,19 +189,18 @@ Point<float> TouchHandler::getTriCentroid(const Point<float>& a, const Point<flo
 
 Point<float> TouchHandler::getCircleCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c)
 {
-
     float ma = (b.y-a.y) / (b.x-a.x); // slope of line AB
     float mb = (c.y-b.y) / (c.x-b.x); // slope of line BC
 
-    float xc = (ma*mb*(a.y-c.y) + mb*(a.x+b.x) - ma*(b.x+c.x)) / (2*(mb-ma)); // x coordinate of circles center
+    float xc = (ma*mb*(a.y-c.y) + mb*(a.x+b.x) - ma*(b.x+c.x)) / (2*(mb-ma)); // x coordinate of circle's center
     float yc = (-1/ma)*(xc-(a.x+b.x)/2) + (a.y+b.y)/2; // y coordinate
-
+    
     return Point<float>(xc,yc);
 }
 
+//==============================================================================
 
-
-
-
-
-
+int TouchHandler::negMod(const int& n, const int& m)
+{
+    return ((n % m) + m) % m;
+}

@@ -6,7 +6,7 @@ OscComponent::OscComponent(const Point<float>& p, int fs)
 : osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
 touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.3f), touchIndicatorCol(Colours::white),
 compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f)), alphaRange(Range<float>(0.2f, 0.9f)),
-idleCounter(0)
+refreshRate(30), idleCounter(0)
 {
 	position = p;
 	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
@@ -20,7 +20,7 @@ idleCounter(0)
 
     drawPoly();
     
-    startTimerHz(30);
+    startTimerHz(refreshRate);
 }
 
 
@@ -168,10 +168,10 @@ void OscComponent::mouseDrag(const MouseEvent& e)
     switch(touchHandler->getNumPoints()) // mapping based on number of touch points
     {
         case 1:
-            if(idleCounter >= 30) // exceeding 1 second idle time
+            if(idleCounter >= refreshRate/2) // exceeding 0.5 second idle time
             {
-                touchHandler->sampleTouchPointCoordinates(e); // sample the coordinates of the touch point over time
-                std::cout << touchHandler->getCircularProgression() << std::endl;
+                touchHandler->sampleTouchPointCoordinate(e); // sample the coordinates of the touch point over time
+                std::cout << touchHandler->getCircularRegression() << std::endl; // tell wether the last point fits a circular regression or not
             }
             else
             {

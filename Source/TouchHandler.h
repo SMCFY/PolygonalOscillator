@@ -29,13 +29,21 @@ public:
 	float getAnchorAngleDelta();
 	float getTriAreaDelta();
 	float getTriRotationDelta();
-
+	int getCircularProgression();
 private:
 
+	float getDist(const Point<float>& a, const Point<float>& b); // distance between 2 points
+    float getNormalizedDist(const Point<float>& a, const Point<float>& b); // calculates the normalized distance between 2 points
+    float getNormalizedAngle(); // calculates the normalized angle between 2 points
+    float getNormalizedArea(); // calculates the area of a triangle defined by 3 points
+    float getNormalizedRotation(); // calculates the rotation of a triangle defined by 3 points
+    Point<float> getTriCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calculates a triangles centroid defined by 3 points
+	Point<float> getCircleCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calulates a circles centroid defined by 3 points
+
     float rMax; // maximum anchor radius
-    float rMin; // minimum anchor radius
     float areaMax; // maximum triangle area
-    float areaMin; // minimum triangle area
+
+    float radThreshold; // threshold for detecting a fitting point to a circles perimeter
 
     float radRef; // reference for incremental change
     float alphaRef;
@@ -43,13 +51,8 @@ private:
     float rotationRef;
     Point<float> originRef; // the triangle's centroid defined by 3 touch points
 
-    Point<float> posBuffer[5]; // circular buffer storing touch point coordinates
+    Point<float> posBuffer[10]; // circular buffer storing sampled touch point coordinates
     int posIndex; // posBuffer index
-
-    float getNormalizedDist(); // calculates the normalized absolute distance between 2 touch points
-    float getNormalizedAngle(); // calculates the normalized angle between 2 touch points
-    float getNormalizedArea(); // calculates the area of a triangle defined by 3 touch points
-    float getNormalizedRotation(); // calculates the rotation of a triangle defined by 3 touch points
 
 	typedef struct TouchPoint
 	{

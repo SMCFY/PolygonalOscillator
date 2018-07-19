@@ -171,6 +171,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             if(idleCounter >= 30) // exceeding 1 second idle time
             {
                 touchHandler->sampleTouchPointCoordinates(e); // sample the coordinates of the touch point over time
+                std::cout << touchHandler->getCircularProgression() << std::endl;
             }
             else
             {

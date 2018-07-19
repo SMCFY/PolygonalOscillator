@@ -34,9 +34,10 @@ private:
 
 	float getDist(const Point<float>& a, const Point<float>& b); // distance between 2 points
     float getNormalizedDist(const Point<float>& a, const Point<float>& b); // calculates the normalized distance between 2 points
-    float getNormalizedAngle(); // calculates the normalized angle between 2 points
-    float getNormalizedArea(); // calculates the area of a triangle defined by 3 points
-    float getNormalizedRotation(); // calculates the rotation of a triangle defined by 3 points
+    float getAngle(const Point<float>& a, const Point<float>& b); // calculates the angle between 2 points
+    float getNormalizedAngle(const Point<float>& a, const Point<float>& b); // calculates the normalized angle between 2 points
+    float getNormalizedArea(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calculates the area of a triangle defined by 3 points
+    float getNormalizedRotation(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calculates the rotation of a triangle defined by 3 points
     Point<float> getTriCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calculates a triangles centroid defined by 3 points
 	Point<float> getCircleCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calulates a circles centroid defined by 3 points
 

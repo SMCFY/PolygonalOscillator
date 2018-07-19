@@ -24,13 +24,13 @@ void TouchHandler::addTouchPoint(const MouseEvent& e)
     if(getNumPoints() == 2) // anchor
     {
         radRef = getNormalizedDist(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos);
-        alphaRef = getNormalizedAngle();
+        alphaRef = getNormalizedAngle(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos);
     }
     else if(getNumPoints() == 3) // polygon
     {
-        areaRef = getNormalizedArea();
+        areaRef = getNormalizedArea(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos);
         originRef = getTriCentroid(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos);
-        rotationRef = getNormalizedRotation();
+        rotationRef = getNormalizedRotation(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos);
     }
 }
 
@@ -46,12 +46,12 @@ void TouchHandler::rmTouchPoint(const MouseEvent& e)
     if(getNumPoints() == 2) // anchor
     {
         radRef = getNormalizedDist(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos);
-        alphaRef = getNormalizedAngle();
+        alphaRef = getNormalizedAngle(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos);
     }
     else if(getNumPoints() == 3) // polygon
     {
-        areaRef = getNormalizedArea();
-        rotationRef = getNormalizedRotation();
+        areaRef = getNormalizedArea(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos);
+        rotationRef = getNormalizedRotation(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos);
     }
 }
 
@@ -88,24 +88,24 @@ float TouchHandler::getAnchorRadiusDelta()
 
 float TouchHandler::getAnchorAngleDelta()
 {
-    return getNormalizedAngle() - alphaRef;
+    return getNormalizedAngle(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos) - alphaRef;
 }
 
 float TouchHandler::getTriAreaDelta()
 {
-    return getNormalizedArea() - areaRef;
+    return getNormalizedArea(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos) - areaRef;
 }
 
 float TouchHandler::getTriRotationDelta()
 {
-    return getNormalizedRotation() - rotationRef;
+    return getNormalizedRotation(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos) - rotationRef;
 }
 
 int TouchHandler::getCircularProgression()
 {
     Point<float> cc = getCircleCentroid(posBuffer[(posIndex+1) % 10], posBuffer[(posIndex+5) % 10], posBuffer[(posIndex+9) % 10]);
 
-    if(getDist(posBuffer[posIndex], cc) - getDist(posBuffer[posIndex+1], cc) < radThreshold)
+    if(getDist(posBuffer[posIndex], cc) - getDist(posBuffer[posIndex+1], cc) < radThreshold) // difference between the circles's radius and the last points distance to the center
         return 1;
     else
         return 0;
@@ -115,54 +115,51 @@ int TouchHandler::getCircularProgression()
 
 float TouchHandler::getDist(const Point<float>& a, const Point<float>& b)
 {
+
     float dist = std::sqrt(std::pow(a.x-b.x,2) + std::pow(a.y-b.y,2));
     return dist;
 }
 
 float TouchHandler::getNormalizedDist(const Point<float>& a, const Point<float>& b)
 {
+
     float dist = std::sqrt(std::pow(a.x-b.x,2) + std::pow(a.y-b.y,2));
     return dist/rMax;
 }
-
-float TouchHandler::getNormalizedAngle()
+float TouchHandler::getAngle(const Point<float>& a, const Point<float>& b)
 {
-	float x = arrayOfTouchPoints[arrayOfTouchPoints.size()-1]->pos.x-arrayOfTouchPoints[0]->pos.x;
-	float y = arrayOfTouchPoints[arrayOfTouchPoints.size()-1]->pos.y-arrayOfTouchPoints[0]->pos.y;
-    return atan2(y,x) / MathConstants<float>::pi;
 
+    return atan2(b.y-a.y, b.x-a.x);
 }
 
-float TouchHandler::getNormalizedArea()
+float TouchHandler::getNormalizedAngle(const Point<float>& a, const Point<float>& b)
 {
-    // coordinates of the triangle
-    Point<float> a = arrayOfTouchPoints[0]->pos; Point<float> b = arrayOfTouchPoints[1]->pos; Point<float> c = arrayOfTouchPoints[2]->pos;
 
-    float area = abs((a.x*(b.y-c.y) + b.x*(c.y-a.y) + c.x*(a.y-b.y)) / 2);
-    return area / areaMax; // normalized, capped area
+    return atan2(b.y-a.y, b.x-a.x) / MathConstants<float>::pi;
 }
 
-float TouchHandler::getNormalizedRotation()
+float TouchHandler::getNormalizedArea(const Point<float>& a, const Point<float>& b, const Point<float>& c)
 {
-    // coordinates of the triangle
-    Point<float> a = arrayOfTouchPoints[0]->pos; Point<float> b = arrayOfTouchPoints[1]->pos; Point<float> c = arrayOfTouchPoints[2]->pos;
-
-    // angle between each vertex and the centroid
-    float angle1 = atan2(originRef.y-a.y, originRef.x-a.x); 
-    float angle2 = atan2(originRef.y-b.y, originRef.x-b.x);
-    float angle3 = atan2(originRef.y-c.y, originRef.x-c.x);
-
-    return (angle1+angle2+angle3)/3 / MathConstants<float>::pi; // return the normalized mean of the 3 angles
     
+    float area = abs((a.x*(b.y-c.y) + b.x*(c.y-a.y) + c.x*(a.y-b.y)) / 2);
+    return area / areaMax;
+}
+
+float TouchHandler::getNormalizedRotation(const Point<float>& a, const Point<float>& b, const Point<float>& c)
+{
+
+    return (getAngle(a,originRef)+getAngle(b,originRef)+getAngle(c,originRef))/3 / MathConstants<float>::pi; // return the normalized mean of the 3 angles between vertices and centroid
 }
 
 Point<float> TouchHandler::getTriCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c)
 {
+
     return Point<float>((a.x+b.x+c.x)/3, (a.y+b.y+c.y)/3);
 }
 
 Point<float> TouchHandler::getCircleCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c)
 {
+
     float ma = (b.y-a.y) / (b.x-a.x); // slope of line AB
     float mb = (c.y-b.y) / (c.x-b.x); // slope of line BC
 

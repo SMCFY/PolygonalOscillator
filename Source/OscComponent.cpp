@@ -18,6 +18,8 @@ refreshRate(30), idleCounter(0)
     phaseRef = osc->getPhaseOffset();
     rRef = osc->getRadius();
 
+    setSaturation(float(osc->getFreq())/osc->getFreqLimits().getEnd()); // set saturation according to f0
+
     drawPoly();
     
     startTimerHz(refreshRate);
@@ -112,6 +114,7 @@ void OscComponent::timerCallback()
 void OscComponent::paint(Graphics& g)
 {
     renderSelectionIndicator(g);
+    renderTweakIndicator(g);
     renderPoly(g);
 
     if(touchHandler->getNumPoints() == 0)
@@ -171,7 +174,8 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             if(idleCounter >= refreshRate/2) // exceeding 0.5 second idle time
             {
                 touchHandler->sampleTouchPointCoordinate(e); // sample the coordinates of the touch point over time
-                touchHandler->getCircularRegression(); // tell wether the last point fits a circular regression or not
+                osc->updateFreq(osc->getFreq() + touchHandler->getCircularRegression());
+                setSaturation(float(osc->getFreq())/osc->getFreqLimits().getEnd());
             }
             else
             {
@@ -211,6 +215,15 @@ void OscComponent::renderSelectionIndicator(Graphics& g)
     if(active)
     {
         // selection indicator graphics
+    }
+}
+
+void OscComponent::renderTweakIndicator(Graphics& g)
+{
+    if(idleCounter >= refreshRate/2)
+    {
+        g.drawEllipse(getScreenX(), getScreenY(), 30, 30, 1);
+
     }
 }
 

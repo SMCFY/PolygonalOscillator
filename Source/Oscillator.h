@@ -30,6 +30,7 @@ public:
 	void updateRadius(const float& r);
 
 	int getFreq();
+	Range<int> getFreqLimits();
 	int getOrder();
 	float getTeeth();
 	float getPhaseOffset();

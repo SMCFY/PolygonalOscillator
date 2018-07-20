@@ -133,13 +133,13 @@ int TouchHandler::getCircularRegression()
         // determine direction
         if(prevAngle < currAngle) // clockwise
         {
-            std::cout << "-->" << std::endl;
-            return 1;
+            //std::cout << "-->" << std::endl;
+            return int(40*abs(prevAngle-currAngle));
         }
         else // anticlockwise
         {
-            std::cout << "<--" << std::endl;
-            return -1;
+            //std::cout << "<--" << std::endl;
+            return -1*int(40*abs(prevAngle-currAngle));
         }
     }
     else

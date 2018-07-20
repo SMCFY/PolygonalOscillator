@@ -19,7 +19,7 @@ public:
 
     OscComponent(const Point<float>& p, int fs);
 	~OscComponent();
-    
+
     void setActive();
     void setInactive();
     void markAsActive();
@@ -43,7 +43,8 @@ public:
 
 private:
 
-    void renderSelectionIndicator(Graphics& g);
+    void renderSelectionIndicator(Graphics& g); // renders indicator for selected component
+    void renderTweakIndicator(Graphics& g); // renders an indicator if trajectory based interaction is allowed
     void renderPoly(Graphics& g); // renders the geometry
     void drawPoly(); // draws the geometry from line segments
     Point<float> mapToScreenCoords(const Point<float>& coords); // maps the polygon coordinates to the component's screen coordinates

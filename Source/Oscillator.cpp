@@ -3,7 +3,7 @@
 #include "Oscillator.h"
 
 Oscillator::Oscillator(int fs)
-: pi(MathConstants<float>::pi), tableSize(512), tableReadIndex(0), f0(Random().nextInt(Range<int>(110, 880))), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f),
+: pi(MathConstants<float>::pi), tableSize(512), tableReadIndex(0), f0(440), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f),
 freqRange(Range<int>(60, 2000)), orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 0.4f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.1f, 0.9f))
 {
     p = new float[tableSize];
@@ -97,6 +97,8 @@ void Oscillator::synthesizeWaveform(float* buff, const int& buffSize)
 void Oscillator::updateFreq(const int& f0)
 {
 	this->f0 = freqRange.clipValue(f0);
+    std::cout << this->f0 << std::endl;
+    tableDelta = f0 * tableOverSamplingRatio;
 }
 
 void Oscillator::updateOrder(const int& n)
@@ -124,6 +126,11 @@ void Oscillator::updateRadius(const float& r)
 int Oscillator::getFreq()
 {
     return f0;
+}
+
+Range<int> Oscillator::getFreqLimits()
+{
+    return freqRange;
 }
 
 int Oscillator::getOrder()

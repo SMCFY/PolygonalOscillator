@@ -5,7 +5,7 @@
 TouchHandler::TouchHandler()
 : rMax(300), areaMax(40000), radThreshold(20), radLimit(200), posIndex(0)
 {
-	
+
 }
 
 TouchHandler::~TouchHandler()
@@ -76,9 +76,10 @@ Point<float> TouchHandler::getTouchPos(const int& i)
 
 void TouchHandler::sampleTouchPointCoordinate(const MouseEvent& e)
 {
-    posIndex = posIndex % 30;
-    posBuffer[posIndex] = e.source.getScreenPosition();
     posIndex++;
+    posIndex = posIndex % 30;
+    
+    posBuffer[posIndex] = e.source.getScreenPosition();
 }
 //==============================================================================
 
@@ -123,17 +124,23 @@ int TouchHandler::getCircularRegression()
     r /= iterations; // mean radius
     cc = Point<float>(xc/iterations, yc/iterations); // mean centroid
 
-    Point<float> currPos = posBuffer[posIndex];
-    Point<float> prevPos = posBuffer[negMod(posIndex-1, 30)];
-    
+    float currAngle = getAngle(posBuffer[posIndex], cc);
+    float prevAngle = getAngle(posBuffer[negMod(posIndex-1, 30)], cc);
+
     // fits current point to the circle's perimeter with given threshold
-    if(r < radLimit && getDist(posBuffer[posIndex], cc) - r < radThreshold)
+    if(r < radLimit && getDist(posBuffer[posIndex], cc) - r < radThreshold && abs(prevAngle-currAngle) < MathConstants<float>::pi)
     {
         // determine direction
-        if((cc.y < currPos.y && currPos.x > prevPos.x) || (cc.y > currPos.y && currPos.x < prevPos.x)) // clockwise
+        if(prevAngle < currAngle) // clockwise
+        {
+            std::cout << "-->" << std::endl;
             return 1;
+        }
         else // anticlockwise
+        {
+            std::cout << "<--" << std::endl;
             return -1;
+        }
     }
     else
     {

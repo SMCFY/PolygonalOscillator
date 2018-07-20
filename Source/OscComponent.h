@@ -19,7 +19,7 @@ public:
 
     OscComponent(const Point<float>& p, int fs);
 	~OscComponent();
-
+    
     void setActive();
     void setInactive();
     void markAsActive();

@@ -171,7 +171,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             if(idleCounter >= refreshRate/2) // exceeding 0.5 second idle time
             {
                 touchHandler->sampleTouchPointCoordinate(e); // sample the coordinates of the touch point over time
-                std::cout << touchHandler->getCircularRegression() << std::endl; // tell wether the last point fits a circular regression or not
+                touchHandler->getCircularRegression(); // tell wether the last point fits a circular regression or not
             }
             else
             {

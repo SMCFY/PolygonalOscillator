@@ -4,14 +4,15 @@
 
 OscComponent::OscComponent(const Point<float>& p, int fs)
 : osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
-touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.3f), touchIndicatorCol(Colours::white),
+touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.2f), touchIndicatorCol(Colours::white), dashFrame(0),
 compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f)), alphaRange(Range<float>(0.2f, 0.9f)),
 refreshRate(30), idleCounter(0)
 {
-	position = p;
-	setBounds(position.x-compSize/2, position.y-compSize/2, compSize, compSize);
+	setBounds(p.x-compSize/2, p.y-compSize/2, compSize, compSize);
     size = compSize-50;
     
+    tweakIndicatorSize = compSize*0.85;
+
     f0Ref = osc->getFreq();
     orderRef = osc->getOrder();
     teethRef = osc->getTeeth();
@@ -105,7 +106,9 @@ void OscComponent::setTransparency(const float& alpha)
 
 void OscComponent::timerCallback()
 {   
-    idleCounter++; // increment idle time counter 
+    if(touchHandler->getNumPoints() == 1)
+        idleCounter++; // increment idle time counter 
+
 	repaint();
 }
 
@@ -114,15 +117,17 @@ void OscComponent::timerCallback()
 void OscComponent::paint(Graphics& g)
 {
     renderSelectionIndicator(g);
-    renderTweakIndicator(g);
     renderPoly(g);
 
-    if(touchHandler->getNumPoints() == 0)
-        setTransparency(*ramp); // change transparency according to envelope
-    else
+    if(idleCounter >= refreshRate/2)
+    {
         setTransparency(1.0f); // render full opaque on interaction
-}
+        renderTweakIndicator(g);
+    }
+    else
+        setTransparency(*ramp); // change transparency according to envelope
 
+}
 void OscComponent::resized()
 {
 
@@ -146,6 +151,7 @@ void OscComponent::mouseDown(const MouseEvent& e)
 
 void OscComponent::mouseUp(const MouseEvent& e)
 {
+    idleCounter = 0; // reset idle time counter
     touchHandler->rmTouchPoint(e);
 
     // update parameter reference for incremental change
@@ -154,8 +160,6 @@ void OscComponent::mouseUp(const MouseEvent& e)
     teethRef = osc->getTeeth();
     phaseRef = osc->getPhaseOffset();
     rRef = osc->getRadius();
-
-
 
     if(touchHandler->getNumPoints() == 0)
     {
@@ -220,11 +224,14 @@ void OscComponent::renderSelectionIndicator(Graphics& g)
 
 void OscComponent::renderTweakIndicator(Graphics& g)
 {
-    if(idleCounter >= refreshRate/2)
-    {
-        g.drawEllipse(getScreenX(), getScreenY(), 30, 30, 1);
-
-    }
+        Path tweakCircle;
+        tweakCircle.addEllipse(compSize-tweakIndicatorSize/2, compSize-tweakIndicatorSize/2, tweakIndicatorSize, tweakIndicatorSize);
+        g.setColour(touchIndicatorCol);
+        g.setOpacity(touchIndicatorAlpha);
+        PathStrokeType tweakStroke = PathStrokeType(touchIndicatorThickness/2);
+        dashFrame++;
+        tweakStroke.createDashedStroke(tweakCircle, tweakCircle, tweakIndicatorDash[int(floor(dashFrame/(refreshRate/5))) % 4], 4);
+        g.strokePath(tweakCircle, tweakStroke);
 }
 
 void OscComponent::renderPoly(Graphics& g)

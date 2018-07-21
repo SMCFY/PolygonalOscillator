@@ -55,20 +55,22 @@ private:
 	TouchHandler* touchHandler;
 
 	float compSize; // size of the component
-	Point<float> position; // component position relative to parent component
-	
+    float size; // size of rendered polygon
     float lineThickness; // line thickness of polygon
-	float size; // size of rendered polygon
 	Colour col;
 	Path polyPath; // sequence of line segments to draw the geometry
     float* ramp; // pointer to the envelope's amplitude
     Range<float> alphaRange;
-
+    
+    
     float touchIndicatorSize;
     float touchIndicatorThickness;
     float touchIndicatorAlpha;
     Colour touchIndicatorCol;
     float touchIndicatorDash[2] = {15.0f, 10.0f};
+    float tweakIndicatorSize;
+    float tweakIndicatorDash[4][4] = { {15.0f, 10.0f, 15.0f, 10.0f}, {0.0f, 5.0f, 15.0f, 5.0f}, {0.0f, 10.0f, 15.0f, 0.0f}, {7.5f, 10.0f, 7.5f, 0.0f} };
+    int dashFrame; // index keeping track of dash animation frame
 
     int f0Ref;
     float orderRef;

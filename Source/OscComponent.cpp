@@ -13,7 +13,7 @@ refreshRate(30), idleCounter(0)
     
     tweakIndicatorSize = compSize*0.85;
 
-    f0Ref = osc->getFreq();
+    f0Ref = 0;
     orderRef = osc->getOrder();
     teethRef = osc->getTeeth();
     phaseRef = osc->getPhaseOffset();
@@ -155,7 +155,6 @@ void OscComponent::mouseUp(const MouseEvent& e)
     touchHandler->rmTouchPoint(e);
 
     // update parameter reference for incremental change
-    f0Ref = osc->getFreq();
     orderRef = osc->getOrder();
     teethRef = osc->getTeeth();
     phaseRef = osc->getPhaseOffset();
@@ -178,7 +177,10 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             if(idleCounter >= refreshRate/2) // exceeding 0.5 second idle time
             {
                 touchHandler->sampleTouchPointCoordinate(e); // sample the coordinates of the touch point over time
-                osc->updateFreq(osc->getFreq() + touchHandler->getCircularRegression());
+                f0Ref += touchHandler->getCircularRegression();
+
+                osc->updateFreq(TouchHandler::linToLog(f0Ref, Range<float>(osc->getFreqLimits().getStart(), osc->getFreqLimits().getEnd()), Range<float>(osc->getFreqLimits().getStart(), osc->getFreqLimits().getEnd())));
+                std::cout << "lin: " << f0Ref << std::endl;
                 setSaturation(float(osc->getFreq())/osc->getFreqLimits().getEnd());
             }
             else

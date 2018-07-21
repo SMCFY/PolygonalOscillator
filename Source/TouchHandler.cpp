@@ -150,6 +150,19 @@ int TouchHandler::getCircularRegression()
 
 //==============================================================================
 
+int TouchHandler::negMod(const int& n, const int& m)
+{
+    return ((n % m) + m) % m;
+}
+
+float TouchHandler::linToLog(float x, const Range<float>& inRange, const Range<float>& outRange)
+{
+    x = inRange.clipValue(x);
+    return outRange.getEnd() + (log(x) - log(inRange.getEnd())) / (log(inRange.getStart()) - log(inRange.getEnd())) * (outRange.getStart() - outRange.getEnd());
+}
+
+//==============================================================================
+
 float TouchHandler::getDist(const Point<float>& a, const Point<float>& b)
 {
 
@@ -203,11 +216,4 @@ Point<float> TouchHandler::getCircleCentroid(const Point<float>& a, const Point<
     float yc = (-1/ma)*(xc-(a.x+b.x)/2) + (a.y+b.y)/2; // y coordinate
     
     return Point<float>(xc,yc);
-}
-
-//==============================================================================
-
-int TouchHandler::negMod(const int& n, const int& m)
-{
-    return ((n % m) + m) % m;
 }

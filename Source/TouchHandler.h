@@ -30,6 +30,10 @@ public:
 	float getTriAreaDelta();
 	float getTriRotationDelta();
 	int getCircularRegression();
+
+	static int negMod(const int& n, const int& m); // modulo operator for negative divisors
+	static float linToLog(float x, const Range<float>& inRange, const Range<float>& outRange); // linear to logarithmic scaling
+
 private:
 
 	float getDist(const Point<float>& a, const Point<float>& b); // distance between 2 points
@@ -40,8 +44,6 @@ private:
     float getNormalizedRotation(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calculates the rotation of a triangle defined by 3 points
     Point<float> getTriCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calculates a triangles centroid defined by 3 points
 	Point<float> getCircleCentroid(const Point<float>& a, const Point<float>& b, const Point<float>& c); // calulates a circles centroid defined by 3 points
-
-	int negMod(const int& n, const int& m); // modulo operator for negative divisors
 
     float rMax; // maximum anchor radius
     float areaMax; // maximum triangle area

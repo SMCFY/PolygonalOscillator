@@ -164,7 +164,7 @@ float TouchHandler::linToLog(float x, const Range<float>& inRange, const Range<f
 float TouchHandler::linToExp(float x, const Range<float>& inRange, const Range<float>& outRange)
 {
     x = inRange.clipValue(x);
-    return outRange.getEnd() + (x - inRange.getEnd()) / (inRange.getStart() - inRange.getEnd()) * (outRange.getStart() - outRange.getEnd());
+    return exp(log(outRange.getEnd()) + (x - inRange.getEnd()) / (inRange.getStart() - inRange.getEnd()) * (log(outRange.getStart()) - log(outRange.getEnd())));
 }
 
 //==============================================================================

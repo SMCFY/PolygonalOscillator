@@ -73,7 +73,7 @@ private:
     float tweakIndicatorDash[4][4] = { {15.0f, 10.0f, 15.0f, 10.0f}, {0.0f, 5.0f, 15.0f, 5.0f}, {0.0f, 10.0f, 15.0f, 0.0f}, {7.5f, 10.0f, 7.5f, 0.0f} };
     int dashFrame; // index keeping track of dash animation frame
 
-    int f0Ref;
+    float regressionRef;
     float orderRef;
     float teethRef;
     float phaseRef;

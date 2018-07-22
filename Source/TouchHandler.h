@@ -29,10 +29,11 @@ public:
 	float getAnchorAngleDelta();
 	float getTriAreaDelta();
 	float getTriRotationDelta();
-	int getCircularRegression();
+	float getCircularRegression();
 
 	static int negMod(const int& n, const int& m); // modulo operator for negative divisors
 	static float linToLog(float x, const Range<float>& inRange, const Range<float>& outRange); // linear to logarithmic scaling
+	static float linToExp(float x, const Range<float>& inRange, const Range<float>& outRange);
 
 private:
 

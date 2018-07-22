@@ -13,7 +13,7 @@ refreshRate(30), idleCounter(0)
     
     tweakIndicatorSize = compSize*0.85;
 
-    f0Ref = regressionRange.getStart();
+    regressionRef = regressionRange.getStart();
     orderRef = osc->getOrder();
     teethRef = osc->getTeeth();
     phaseRef = osc->getPhaseOffset();
@@ -177,10 +177,10 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             if(idleCounter >= refreshRate/2) // exceeding 0.5 second idle time
             {
                 touchHandler->sampleTouchPointCoordinate(e); // sample the coordinates of the touch point over time
-                f0Ref = regressionRange.clipValue(f0Ref + touchHandler->getCircularRegression());
+                regressionRef = regressionRange.clipValue(regressionRef + touchHandler->getCircularRegression());
 
-                osc->updateFreq(TouchHandler::linToLog(f0Ref, regressionRange, Range<float>(osc->getFreqLimits().getStart(), osc->getFreqLimits().getEnd())));
-                std::cout << "lin: " << f0Ref << std::endl;
+                osc->updateFreq(TouchHandler::linToLog(regressionRef, regressionRange, Range<float>(osc->getFreqLimits().getStart(), osc->getFreqLimits().getEnd())));
+                std::cout << "lin: " << regressionRef << std::endl;
                 setSaturation(float(osc->getFreq())/osc->getFreqLimits().getEnd());
             }
             else

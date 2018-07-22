@@ -96,8 +96,8 @@ void Oscillator::synthesizeWaveform(float* buff, const int& buffSize)
 
 void Oscillator::updateFreq(const int& f0)
 {
+    std::cout << "log: " << f0 << std::endl;
 	this->f0 = freqRange.clipValue(f0);
-    std::cout << "log: " << this->f0 << std::endl;
     tableDelta = f0 * tableOverSamplingRatio;
 }
 

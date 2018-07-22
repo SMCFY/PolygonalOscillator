@@ -103,7 +103,7 @@ float TouchHandler::getTriRotationDelta()
     return getNormalizedRotation(arrayOfTouchPoints[0]->pos, arrayOfTouchPoints[1]->pos, arrayOfTouchPoints[2]->pos) - rotationRef;
 }
 
-int TouchHandler::getCircularRegression()
+float TouchHandler::getCircularRegression()
 {
     Point<float> cc; // circle's centroid
     float r = 0; // circle's radius
@@ -134,12 +134,12 @@ int TouchHandler::getCircularRegression()
         if(prevAngle < currAngle) // clockwise
         {
             //std::cout << "-->" << std::endl;
-            return ceil(abs(prevAngle-currAngle));
+            return abs(prevAngle-currAngle);
         }
         else // anticlockwise
         {
             //std::cout << "<--" << std::endl;
-            return -1*ceil(abs(prevAngle-currAngle));
+            return -1*abs(prevAngle-currAngle);
         }
     }
     else
@@ -159,6 +159,12 @@ float TouchHandler::linToLog(float x, const Range<float>& inRange, const Range<f
 {
     x = inRange.clipValue(x);
     return outRange.getEnd() + (log(x) - log(inRange.getEnd())) / (log(inRange.getStart()) - log(inRange.getEnd())) * (outRange.getStart() - outRange.getEnd());
+}
+
+float TouchHandler::linToExp(float x, const Range<float>& inRange, const Range<float>& outRange)
+{
+    x = inRange.clipValue(x);
+    return outRange.getEnd() + (x - inRange.getEnd()) / (inRange.getStart() - inRange.getEnd()) * (outRange.getStart() - outRange.getEnd());
 }
 
 //==============================================================================

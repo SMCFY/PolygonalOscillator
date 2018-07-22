@@ -61,6 +61,7 @@ private:
 	Path polyPath; // sequence of line segments to draw the geometry
     float* ramp; // pointer to the envelope's amplitude
     Range<float> alphaRange;
+    Range<float> regressionRange;
     
     
     float touchIndicatorSize;

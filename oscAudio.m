@@ -1,29 +1,32 @@
 %% synthesis
 
 % core parameters
-a = 5; % schlalfi numerator
+a = 4; % schlalfi numerator
 b = 1; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
-f0 = 400; % f0
+f0 = 440; % f0
 T = 0.0; % teeth
 phaseOffset = 0; % initial phase
 R = 1; % scale
 
 fs = 44100;
-dPhase = 2*pi * (f0/fs); % phase increment
+dPhase = 2*pi*f0*(1/fs); % phase increment
 sizeP = ceil(fs/f0*b); % period in samples
 
+f0_lowest = 20; % lowest possible fundamental frequency
+waveSize = fs/f0_lowest; % size of the generated waveform in samples
+
 theta = phaseOffset; % init phase with offset, for radial amplitude calculation
-p = zeros(1, fs); % radial amplitude of geometry
-for i=1:fs % geometry
+p = zeros(1, waveSize); % radial amplitude of geometry
+for i=1:waveSize % geometry
     %p(i) = cos(pi/n) / cos(mod(theta, 2*pi/n) -pi/n + T) * R;
     p(i) = cos(pi/n) / cos(2*pi/n * mod(theta*n/(2*pi), 1) -pi/n + T) * R;
     theta = theta+dPhase;
 end
 
 theta = 0; % init phase for sampling
-poly = zeros(1, fs); % sampled geometry
-for i=1:fs
+poly = zeros(1, waveSize); % sampled geometry
+for i=1:waveSize
     poly(i) = p(i) * (cos(theta) + 1j*sin(theta));
     theta = theta+dPhase;
 end
@@ -32,26 +35,36 @@ waveform = imag(poly); % projection to y axis
 
 %% anti aliasing
 
-dx = diff(waveform); % first derivative of the waveform
-dx = dx / max(abs(dx)); % normalisation
-dx = [dx dx(1)]; % wrap around
+dx = diff(waveform,1); % first derivative of the waveform
+%dx = dx / max(abs(dx)); % normalisation
+
+discSlope = diff(waveform,2); % second derivative
+discSlope = [0, discSlope]; % offset
+%discSlope = discSlope / abs(max(discSlope));
 
 waveformAA = waveform; % anti-aliased waveform
 disc = zeros(1, a); % location of discontinuities expressed in samples
+discPhase = zeros(1, a); % location of discontinuities expressed in radians
+
+u = zeros(1, a); % change in amplitude at discontinuities
 
 for k=1:a % iterate through the discontinuities in the first period
     
-    disc(k) = fs/(n*f0)*k - fs/f0/(2*pi/phaseOffset) + 1;
+    disc(k) = fs/(n*f0)*k - fs/f0/(2*pi/phaseOffset)+1;
+    discPhase(k) = 2*pi/n*k;
    
     % boundary samples
-    n3 = ceil(disc(k));
+    n3 = ceil(fs/(n*f0)*k+1);
     n1 = n3-2;
     n2 = n1+1;
     n4 = n3+1;
     
-    d = n3 - disc(k); % fractional delay between the discontinuity and the next sample 
+    d = n3 - (fs/(n*f0)*k+1); % fractional delay between the discontinuity and the next sample 
     
-    u = abs(-2*tan(pi/n) * cos(dPhase*disc(k))+phaseOffset); % slope of the derivative at the discontinuity
+    %u(k) = abs(-2*tan(pi/n) * cos(dPhase*disc(k))+phaseOffset); % slope of the derivative at the discontinuity
+    %u(k) = abs(-2*tan(pi/n)*cos(discPhase(k)));
+    %u(k) = abs(discSlope(n2));
+    u(k) = abs(discSlope(n2)+ (disc(k)-n2) * ((discSlope(n3)-discSlope(n2)) / (n3-n2)) );
     
     % 4-point polyBLAMP residual coefficients
     p0 = d^5/120;
@@ -60,10 +73,10 @@ for k=1:a % iterate through the discontinuities in the first period
     p3 = (-d^5 +5*d^4 -10*d^3 +10*d^2 -5*d +1)/120;
     
     % waveform correction on the four samples around the discontinuity
-    waveformAA(n1) = waveform(n1) -p0*u *sign(waveform(n1));
-    waveformAA(n2) = waveform(n2) -p1*u *sign(waveform(n2));
-    waveformAA(n3) = waveform(n3) -p2*u *sign(waveform(n3)); 
-    waveformAA(n4) = waveform(n4) -p3*u *sign(waveform(n4));
+    waveformAA(n1) = waveform(n1) -p0*u(k) *sign(waveform(n1));
+    waveformAA(n2) = waveform(n2) -p1*u(k) *sign(waveform(n2));
+    waveformAA(n3) = waveform(n3) -p2*u(k) *sign(waveform(n3)); 
+    waveformAA(n4) = waveform(n4) -p3*u(k) *sign(waveform(n4));
 end
 
 %% plot
@@ -76,15 +89,17 @@ title('Complex plane');
 
 subplot(2,2,3);
 graph1 = plot(waveform, 'b');
-axis([1 sizeP -1 1]);
+axis([1 sizeP -1 1]); % display the first period only
 hold on;
 graph2 = plot(dx, '--');
 hold on;
 graph3 = plot(waveformAA, '-.m');
+hold on;
+graph4 = plot(discSlope);
 for i=1:a
     line([disc(i),disc(i)], [-1,1],'Color','red','LineStyle',':');
 end
-legend([graph1, graph2, graph3],{'Original waveform', 'Derivative', 'Anti-aliased waveform'});
+legend([graph1, graph2, graph3, graph4],{'Original waveform', 'Derivative', 'Anti-aliased waveform', 'Second derivative'});
 title('Projection');
 
 % magnitude spectrum comparison
@@ -120,7 +135,7 @@ end
 eNoise = magEn - eSig; % energy of the noise
 
 snr = eSig / eNoise;
-disp(snr);
+disp('SNR: ');disp(snr);
 
 %% output
 

@@ -6,7 +6,7 @@ b = 1; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
 f0 = 440; % f0
 T = 0.0; % teeth
-phaseOffset = 0; % initial phase
+phaseOffset = pi/4; % initial phase
 R = 1; % scale
 
 fs = 44100;
@@ -54,17 +54,17 @@ for k=1:a % iterate through the discontinuities in the first period
     discPhase(k) = 2*pi/n*k;
    
     % boundary samples
-    n3 = ceil(fs/(n*f0)*k+1);
+    n3 = ceil(disc(k));
     n1 = n3-2;
     n2 = n1+1;
     n4 = n3+1;
     
-    d = n3 - (fs/(n*f0)*k+1); % fractional delay between the discontinuity and the next sample 
+    d = n3 - disc(k); % fractional delay between the discontinuity and the next sample 
     
     %u(k) = abs(-2*tan(pi/n) * cos(dPhase*disc(k))+phaseOffset); % slope of the derivative at the discontinuity
     %u(k) = abs(-2*tan(pi/n)*cos(discPhase(k)));
     %u(k) = abs(discSlope(n2));
-    u(k) = abs(discSlope(n2)+ (disc(k)-n2) * ((discSlope(n3)-discSlope(n2)) / (n3-n2)) );
+    u(k) = abs(discSlope(n2)+ (disc(k)-n2) * ((discSlope(n3)-discSlope(n2)) / (n3-n2)) ) *2;
     
     % 4-point polyBLAMP residual coefficients
     p0 = d^5/120;
@@ -95,7 +95,7 @@ graph2 = plot(dx, '--');
 hold on;
 graph3 = plot(waveformAA, '-.m');
 hold on;
-graph4 = plot(discSlope);
+graph4 = plot(discSlope, 'g');
 for i=1:a
     line([disc(i),disc(i)], [-1,1],'Color','red','LineStyle',':');
 end

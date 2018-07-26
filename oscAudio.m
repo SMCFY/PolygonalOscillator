@@ -127,7 +127,7 @@ fH = [f0, fH]; % fundamental + harmonics
 % extract magnitude from fft
 eSig = 0;
 for i=1:length(fH)
-    eSig = eSig + magSpec(fH(i)+1)^2; % energy of the fundamental + harmonics
+    eSig = eSig + magSpec(fH(i))^2; % energy of the fundamental + harmonics
 end
 
 % calculate individual bins
@@ -145,7 +145,7 @@ end
 %     sId = sId + sin(2*pi*fH(i)*[0:1/fs:1]);
 % end
 
-eNoise = sum(magSpec(1:length(magSpec)).^2) - eSig; % energy of the noise
+eNoise = sum(magSpec(1:length(magSpec)/2).^2) - eSig; % energy of the noise
 
 snr = eSig / eNoise;
 disp('SNR: ');disp(snr);

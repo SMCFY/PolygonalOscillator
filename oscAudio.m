@@ -1,54 +1,65 @@
 %% synthesis
 
 % core parameters
-a = 4; % schlalfi numerator
-b = 1; % schalfi denominator (a > 2b)
+a = 7; % schlalfi numerator
+b = 2; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
-f0 = 440; % f0
+f0 = 220; % f0
 T = 0.0; % teeth
-phaseOffset = 0; % initial phase
+phaseOffset = pi/4; % initial phase
 R = 1; % scale
 
 fs = 44100;
 dPhase = 2*pi*f0*(1/fs); % phase increment
-sizeP = ceil(fs/f0*b); % period in samples
+sizeP = fs/f0*b; % period size in samples
 
-f0_lowest = 20; % lowest possible fundamental frequency
-waveSize = fs/f0_lowest; % size of the generated waveform in samples
+%f0_lowest = 20; % lowest possible fundamental frequency
+%waveSize = fs/f0_lowest; % size of the generated waveform in samples
+buffSize = 512;
+nBuffers = 50;
 
 theta = phaseOffset; % init phase with offset, for radial amplitude calculation
-p = zeros(1, waveSize); % radial amplitude of geometry
-for i=1:waveSize % geometry
-    %p(i) = cos(pi/n) / cos(mod(theta, 2*pi/n) -pi/n + T) * R;
-    p(i) = cos(pi/n) / cos(2*pi/n * mod(theta*n/(2*pi), 1) -pi/n + T) * R;
-    theta = theta+dPhase;
+thetaSampling = 0; % init phase for sampling
+
+p = zeros(1, buffSize); % radial amplitude of geometry
+poly = zeros(1, buffSize); % sampled geometry
+waveform = []; % projection
+
+for i=1:nBuffers
+
+    for j=1:buffSize % geometry
+        p(j) = cos(pi/n) / cos(2*pi/n * mod(theta*n/(2*pi), 1) -pi/n + T) * R;
+        theta = theta+dPhase;
+    end
+
+    for j=1:buffSize % sampling
+        poly(j) = p(j) * (cos(thetaSampling) + 1j*sin(thetaSampling));
+        thetaSampling = thetaSampling+dPhase;
+    end
+    
+    waveform = [waveform imag(poly)]; % projection to y axis
 end
 
-theta = 0; % init phase for sampling
-poly = zeros(1, waveSize); % sampled geometry
-for i=1:waveSize
-    poly(i) = p(i) * (cos(theta) + 1j*sin(theta));
-    theta = theta+dPhase;
+vertices = zeros(2, a); % location of vertices
+for i=1:a
+    vertices(1,i) = cos(2*pi/a*i + phaseOffset); % x
+    vertices(2,i) = sin(2*pi/a*i + phaseOffset); % y
 end
-
-waveform = imag(poly); % projection to y axis
 
 %% anti aliasing
 
 dx = diff(waveform,1); % first derivative of the waveform
-%dx = dx / max(abs(dx)); % normalisation
-
 discSlope = diff(waveform,2); % second derivative
 discSlope = [0, discSlope]; % offset
-%discSlope = discSlope / abs(max(discSlope));
 
 waveformAA = waveform; % anti-aliased waveform
-disc = zeros(1, a); % location of discontinuities expressed in samples
-discPhase = zeros(1, a); % location of discontinuities expressed in radians
+nDisc = floor(length(waveform)/sizeP*a);
+disc = zeros(1, nDisc); % location of discontinuities expressed in samples
+discPhase = zeros(1, nDisc); % location of discontinuities expressed in radians
+ 
+u = zeros(1, nDisc); % change in amplitude at discontinuities
 
-u = zeros(1, a); % change in amplitude at discontinuities
-
-for k=1:a % iterate through the discontinuities in the first period
+for k=1:nDisc % iterate through the discontinuities in the first period
     
     disc(k) = fs/(n*f0)*k - fs/f0/(2*pi/phaseOffset)+1;
     discPhase(k) = 2*pi/n*k;
@@ -61,9 +72,6 @@ for k=1:a % iterate through the discontinuities in the first period
     
     d = n3 - disc(k); % fractional delay between the discontinuity and the next sample 
     
-    %u(k) = abs(-2*tan(pi/n) * cos(dPhase*disc(k))+phaseOffset); % slope of the derivative at the discontinuity
-    %u(k) = abs(-2*tan(pi/n)*cos(discPhase(k)));
-    %u(k) = abs(discSlope(n2));
     u(k) = abs(discSlope(n2)+ (disc(k)-n2) * ((discSlope(n3)-discSlope(n2)) / (n3-n2)) ) *2;
     
     % 4-point polyBLAMP residual coefficients
@@ -96,7 +104,7 @@ hold on;
 graph3 = plot(waveformAA, '-.m');
 hold on;
 graph4 = plot(discSlope, 'g');
-for i=1:a
+for i=1:nDisc
     line([disc(i),disc(i)], [-1,1],'Color','red','LineStyle',':');
 end
 legend([graph1, graph2, graph3, graph4],{'Original waveform', 'Derivative', 'Anti-aliased waveform', 'Second derivative'});
@@ -113,57 +121,43 @@ plot(db(abs(fft(waveformAA, fs))), 'k');
 axis([0 fs/2 -80 80]);
 title('Anti-aliased waveform');
 
-%% SNR
-
-magSpec = abs(fft(waveform, fs));
-dFreq = length(magSpec)/fs; % frequency resolution
-
-fH = zeros(1, 20); % frequency of the first k harmonics (Hz)
-for k=1:length(fH) % sum of the energy of the first k harmonics
-    fH(k) = f0*(2*floor(k/2)+1+(n-2)*(1+floor((k-1)/2))); 
-end
-fH = [f0, fH]; % fundamental + harmonics
-
-% extract magnitude from fft
-eSig = 0;
-for i=1:length(fH)
-    eSig = eSig + magSpec(fH(i))^2; % energy of the fundamental + harmonics
-end
-
-% calculate individual bins
-% dftBin = zeros(1, length(fH)); % dft of fundamental and harmonics
-% for i=1:length(dftBin)
-%     for n=1:length(waveform)
-%         dftBin(i) = dftBin(i) + waveform(n)*exp(-1i*2*pi*n*(fH(i)/fs));
-%     end
+% %% SNR
+% 
+% magSpec = abs(fft(waveform, fs));
+% dFreq = length(magSpec)/fs; % frequency resolution
+% 
+% fH = zeros(1, 20); % frequency of the first k harmonics (Hz)
+% for k=1:length(fH) % sum of the energy of the first k harmonics
+%     fH(k) = f0*(2*floor(k/2)+1+(n-2)*(1+floor((k-1)/2))); 
 % end
-% eSig = sum(abs(dftBin).^2);
-
-% ideal signal constructed from sinusoids
-% sId = sin(2*pi*f0*[0:1/fs:1]);
+% fH = [f0, fH]; % fundamental + harmonics
+% 
+% % extract magnitude from fft
+% eSig = 0;
 % for i=1:length(fH)
-%     sId = sId + sin(2*pi*fH(i)*[0:1/fs:1]);
+%     eSig = eSig + magSpec(fH(i))^2; % energy of the fundamental + harmonics
 % end
-
-eNoise = sum(magSpec(1:length(magSpec)/2).^2) - eSig; % energy of the noise
-
-snr = eSig / eNoise;
-disp('SNR: ');disp(snr);
+% 
+% % calculate individual bins
+% % dftBin = zeros(1, length(fH)); % dft of fundamental and harmonics
+% % for i=1:length(dftBin)
+% %     for n=1:length(waveform)
+% %         dftBin(i) = dftBin(i) + waveform(n)*exp(-1i*2*pi*n*(fH(i)/fs));
+% %     end
+% % end
+% % eSig = sum(abs(dftBin).^2);
+% 
+% % ideal signal constructed from sinusoids
+% % sId = sin(2*pi*f0*[0:1/fs:1]);
+% % for i=1:length(fH)
+% %     sId = sId + sin(2*pi*fH(i)*[0:1/fs:1]);
+% % end
+% 
+% eNoise = sum(magSpec(1:length(magSpec)/2).^2) - eSig; % energy of the noise
+% 
+% snr = eSig / eNoise;
+% disp('SNR: ');disp(snr);
 
 %% output
 
-duration = 1;
-
-y = zeros(1, duration*fs);
-readIndex = 1;
-
-for i=1:length(y)
-    y(i) = waveformAA(readIndex);
-    
-    readIndex = mod(readIndex+1, sizeP);
-    if(readIndex == 0)
-        readIndex = 1;
-    end
-end
-
-%soundsc(y, fs);
+soundsc(waveformAA, fs);

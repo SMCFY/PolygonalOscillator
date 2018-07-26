@@ -6,7 +6,7 @@ b = 1; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
 f0 = 440; % f0
 T = 0.0; % teeth
-phaseOffset = pi/4; % initial phase
+phaseOffset = 0; % initial phase
 R = 1; % scale
 
 fs = 44100;
@@ -105,34 +105,47 @@ title('Projection');
 % magnitude spectrum comparison
 subplot(2,2,2);
 plot(db(abs(fft(waveform, fs))), 'k');
-axis([0 fs/2 -40 60]);
+axis([0 fs/2 -80 80]);
 title('Original waveform');
 
 subplot(2,2,4);
 plot(db(abs(fft(waveformAA, fs))), 'k');
-axis([0 fs/2 -40 60]);
+axis([0 fs/2 -80 80]);
 title('Anti-aliased waveform');
 
 %% SNR
 
-magSpec = abs(fft(waveform));
-%magSpec = magSpec - max(magSpec); % offset
+magSpec = abs(fft(waveform, fs));
 dFreq = length(magSpec)/fs; % frequency resolution
 
-eSig = 0; % energy of the marmonics
-fH = [f0, zeros(1, 20)]; % frequency of the first k harmonics and the fundamental (Hz)
-for k=2:length(fH) % sum of the energy of the first k harmonics
+fH = zeros(1, 20); % frequency of the first k harmonics (Hz)
+for k=1:length(fH) % sum of the energy of the first k harmonics
     fH(k) = f0*(2*floor(k/2)+1+(n-2)*(1+floor((k-1)/2))); 
-    
-    eSig = eSig + ( magSpec(f0*dFreq+1) + magSpec(fH(k)*dFreq+1) )^2;
-end 
+end
+fH = [f0, fH]; % fundamental + harmonics
 
-magEn = 0; % summed energy over the whole spectrum
-for i=1:length(magSpec)
-    magEn = magEn + magSpec(i)^2;
+% extract magnitude from fft
+eSig = 0;
+for i=1:length(fH)
+    eSig = eSig + magSpec(fH(i)+1)^2; % energy of the fundamental + harmonics
 end
 
-eNoise = magEn - eSig; % energy of the noise
+% calculate individual bins
+% dftBin = zeros(1, length(fH)); % dft of fundamental and harmonics
+% for i=1:length(dftBin)
+%     for n=1:length(waveform)
+%         dftBin(i) = dftBin(i) + waveform(n)*exp(-1i*2*pi*n*(fH(i)/fs));
+%     end
+% end
+% eSig = sum(abs(dftBin).^2);
+
+% ideal signal constructed from sinusoids
+% sId = sin(2*pi*f0*[0:1/fs:1]);
+% for i=1:length(fH)
+%     sId = sId + sin(2*pi*fH(i)*[0:1/fs:1]);
+% end
+
+eNoise = sum(magSpec(1:length(magSpec)).^2) - eSig; % energy of the noise
 
 snr = eSig / eNoise;
 disp('SNR: ');disp(snr);

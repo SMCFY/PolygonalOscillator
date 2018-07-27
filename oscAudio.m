@@ -4,8 +4,8 @@
 a = 7; % schlalfi numerator
 b = 2; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
-f0 = 220; % f0
-T = 0.0; % teeth
+f0 = 1220; % f0
+T = 0.2; % teeth
 phaseOffset = pi/4; % initial phase
 R = 1; % scale
 
@@ -13,8 +13,6 @@ fs = 44100;
 dPhase = 2*pi*f0*(1/fs); % phase increment
 sizeP = fs/f0*b; % period size in samples
 
-%f0_lowest = 20; % lowest possible fundamental frequency
-%waveSize = fs/f0_lowest; % size of the generated waveform in samples
 buffSize = 512;
 nBuffers = 50;
 
@@ -40,10 +38,22 @@ for i=1:nBuffers
     waveform = [waveform imag(poly)]; % projection to y axis
 end
 
-vertices = zeros(2, a); % location of vertices
-for i=1:a
-    vertices(1,i) = cos(2*pi/a*i + phaseOffset); % x
-    vertices(2,i) = sin(2*pi/a*i + phaseOffset); % y
+% vertices = zeros(2, a); % location of vertices
+% for i=1:a
+%     vertices(1,i) = cos(2*pi/a*i + phaseOffset * R); % x
+%     vertices(2,i) = sin(2*pi/a*i + phaseOffset * R); % y
+% end
+
+pDraw = zeros(1, buffSize);
+thetaDraw = phaseOffset;
+thetaSampling = 0;
+for i=1:buffSize % geometry
+    pDraw(i) = cos(pi/n) / cos(mod(thetaDraw, 2*pi/n) -pi/n + T) * R;
+    pDraw(i) = pDraw(i) * (cos(thetaSampling) + 1j*sin(thetaSampling));
+    
+    thetaDraw = thetaDraw + (2*pi*b/buffSize);
+    thetaSampling = thetaSampling + (2*pi*b/buffSize);
+    
 end
 
 %% anti aliasing
@@ -90,7 +100,7 @@ end
 %% plot
 
 subplot(2,2,1);
-plot(real(poly), imag(poly), 'r');
+plot(real(pDraw)/max(real(pDraw)), imag(pDraw)/max(imag(pDraw)), 'r');
 axis([-1 1 -1 1]);
 axis equal;
 title('Complex plane');

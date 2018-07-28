@@ -17,13 +17,13 @@ class OscComponent : public Component, public Timer
 {
 public:
 
-    OscComponent(const Point<float>& p, int fs);
+    OscComponent(const Point<float>& p, int fs, int samplesPerFrame);
 	~OscComponent();
 
     void setActive();
     void setInactive();
     void markAsActive();
-    void synthWaveform(float* buff, const int& buffSize); // calls Oscillator::synthesizeWaveform()
+    void synthWaveform(float* buff); // calls Oscillator::synthesizeWaveform()
     void renderTouchPoints(Graphics& g); // renders location of touch points and their distances
 
     void setBrightness(const float& brightness);

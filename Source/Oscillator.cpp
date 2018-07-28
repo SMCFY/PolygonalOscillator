@@ -2,92 +2,92 @@
 
 #include "Oscillator.h"
 
-Oscillator::Oscillator(int fs)
-: pi(MathConstants<float>::pi), tableSize(512), tableReadIndex(0), f0(60), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f),
+Oscillator::Oscillator(int fs, int buffSize)
+: pi(MathConstants<float>::pi), f0(60), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f), isClipped(false), pMax(0),
 freqRange(Range<int>(60, 2000)), orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 0.4f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.1f, 0.9f))
 {
-    p = new float[tableSize];
-	wavetable = new float[tableSize];
-    polygon = new std::complex<float>[tableSize];
+    p = new float[buffSize];
+    pRender = new float[buffSize];
+    polygon = new std::complex<float>[buffSize];
     
     this->fs = fs;
-    tableOverSamplingRatio = float(tableSize)/float(fs);
-    tableDelta = f0 * tableOverSamplingRatio;
+    this->buffSize = buffSize;
     
-	generateWavetable();
+    theta.reset();
+
+	generatePolygon();
 }
 
 Oscillator::~Oscillator()
 {
     delete p;
-	delete wavetable;
+    delete pRender;
 	delete polygon;
 }
 
 //==============================================================================
 
-void Oscillator::generateWavetable()
+void Oscillator::generatePolygon()
 {
-    bool isClipped = false;
-    float pMax = 0; // maximum radial amplitude
-    
-    dsp::Phase<float> theta;
-	for(int i=0; i<tableSize; i++)
-	{
-        p[i] = std::cos(pi/n) / std::cos(fmod(theta.phase+phaseOffset, 2*pi/n) - pi/n + t) * r; // radial amplitude
 
-        if(p[i] > radRange.getEnd()) // checks for clipping (radial amplitude out of range)
+    dsp::Phase<float> phi;
+    isClipped = false;
+    pMax = 0;
+
+    for(int i=0; i<buffSize; i++)
+    {
+        pRender[i] = std::cos(pi/n) / std::cos(fmod(phi.phase+phaseOffset, 2*pi/n) -pi/n + t) * r;
+        
+        phi.advance(2*pi/buffSize);
+
+        if(pRender[i] > radRange.getEnd()) // checks for clipping (radial amplitude out of range)
         {
             isClipped = true;
-            pMax = jmax(p[i], pMax); // store maximum clipping radial amplitude
+            pMax = jmax(pRender[i], pMax); // store maximum clipping radial amplitude
         }
-
-        theta.advance(2*pi/tableSize); // increment phase
     }
 
     if(isClipped) // normalize polygon if clipped
     {
-        for (int i = 0; i < tableSize; i++)
-            p[i] = p[i]/pMax*radRange.getEnd(); // normalize and cap to range
+        for (int i = 0; i < buffSize; i++)
+            pRender[i] = pRender[i]/pMax*radRange.getEnd(); // normalize and cap to range
     }
 
-    theta.reset(); // reset phase
-    for(int i=0; i<tableSize; i++)
+
+    phi.reset();
+    for(int i=0; i<buffSize; i++) // sampling
     {
-        // sample polygon
-        polygon[i].real(p[i] * cos(theta.phase));
-        polygon[i].imag(p[i] * sin(theta.phase));
+        polygon[i].real(pRender[i] * std::cos(phi.phase));
+        polygon[i].imag(pRender[i] * std::sin(phi.phase));
 
-        wavetable[i] = polygon[i].imag(); // projection to wavetable
-
-        theta.advance(2*pi/tableSize); // increment phase
+        phi.advance(2*pi/buffSize);
     }
 }
 
-void Oscillator::synthesizeWaveform(float* buff, const int& buffSize)
+void Oscillator::synthesizeWaveform(float* buff)
 {   
-    
-    for (int sample = 0; sample < buffSize; sample++)
+
+    if(isClipped)
     {
-        int i1 = floor(tableReadIndex); // sample index before the readIndex
-        int i2; // sample index after the readIndex
-        
-        if(i1 == tableSize-1)
-            i2 = 0; // wrap around sample index
-        else
-            i2 = i1+1;
-        
-        float v1 = wavetable[i1];
-        float v2 = wavetable[i2];
-        
-        float frac = tableReadIndex - i1; // sample fraction
-        
-        buff[sample] = v2 + (frac*(v2-v1)); // linear interpolation to calculate output samples for a single channel
-            
-            
-        tableReadIndex = tableReadIndex + tableDelta; // increment read index
-        if(tableReadIndex > tableSize-1)
-            tableReadIndex = tableReadIndex-tableSize; // wrap around readIndex if table size is exceeded
+        for(int i = 0; i < buffSize; i++)
+        {
+            p[i] = std::cos(pi/n) / std::cos(2*pi/n * fmod((theta.phase+phaseOffset)*n/(2*pi), 1) -pi/n + t) * r;  // radial amplitude
+    
+            buff[i] = p[i]/pMax*radRange.getEnd() * std::sin(theta.phase); // sample the y axis with normalized radial amplitude
+    
+            theta.advance(2*pi*float(f0)*(1/float(fs)));  // increment phase
+        }
+    }
+    else
+    {
+        for(int i = 0; i < buffSize; i++)
+        {
+            p[i] = std::cos(pi/n) / std::cos(2*pi/n * fmod((theta.phase+phaseOffset)*n/(2*pi), 1) -pi/n + t) * r;  // radial amplitude
+    
+            buff[i] = p[i] * std::sin(theta.phase); // sample the y axis
+    
+            theta.advance(2*pi*float(f0)*(1/float(fs)));  // increment phase
+        }
     }
     
 }
@@ -97,7 +97,6 @@ void Oscillator::synthesizeWaveform(float* buff, const int& buffSize)
 void Oscillator::updateFreq(const int& f0)
 {
 	this->f0 = freqRange.clipValue(f0);
-    tableDelta = f0 * tableOverSamplingRatio;
 }
 
 void Oscillator::updateOrder(const int& n)
@@ -152,12 +151,19 @@ float Oscillator::getRadius()
     return r;
 }
 
-int Oscillator::getTablesize()
+int Oscillator::getBufferSize()
 {
-	return tableSize;
+    return buffSize;
 }
 
 Point<float> Oscillator::getDrawCoords(const int& i)
 {
 	return Point<float>(polygon[i].real(), polygon[i].imag());
+}
+
+//==============================================================================
+
+void Oscillator::polyBLAMP()
+{
+    // aa goes here
 }

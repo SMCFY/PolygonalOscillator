@@ -37,7 +37,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     
     for (int i = 0; i < oscillatorBank.size(); i++)
     {   
-        oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0), samplesPerFrame); // synthesize waveform to oscillator output buffer
+        oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0)); // synthesize waveform to oscillator output buffer
 
         oscillatorBank[i]->seq->updateCounter(); // update counter
         if(oscillatorBank[i]->seq->tick()) // trigger envelope according to set tempo
@@ -87,7 +87,7 @@ void MainComponent::resized()
 
 void MainComponent::createOscillator(const Point<float>& p)
 {
-    OscInstance* o = new OscInstance(p, fs);
+    OscInstance* o = new OscInstance(p, fs, samplesPerFrame);
     
     o->oscComp->setComponentID(String(oscillatorBank.size())); // new instance gets id mathcing its future index in the array
     o->oscComp->addComponentListener(this);

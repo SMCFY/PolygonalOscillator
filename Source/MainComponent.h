@@ -50,12 +50,12 @@ private:
         OscComponent* oscComp; // oscillator component
         Sequencer* seq;
         Envelope* env;
-        OscInstance(const Point<float>& p, int fs)
+        OscInstance(const Point<float>& p, int fs, int samplesPerFrame)
         {
             seq = new Sequencer();
             env = new Envelope(Envelope::AR);
             env->setSamplingRate(fs);
-            oscComp = new OscComponent(p, fs);
+            oscComp = new OscComponent(p, fs, samplesPerFrame);
             oscComp->mapRamp(env->getAmplitude()); // return pointer to the envelope's amplitude
         }
         ~OscInstance()

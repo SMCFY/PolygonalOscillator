@@ -2,8 +2,8 @@
 
 #include "OscComponent.h"
 
-OscComponent::OscComponent(const Point<float>& p, int fs)
-: osc(new Oscillator(fs)), touchHandler(new TouchHandler()),
+OscComponent::OscComponent(const Point<float>& p, int fs, int samplesPerFrame)
+: osc(new Oscillator(fs, samplesPerFrame)), touchHandler(new TouchHandler()),
 touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.2f), touchIndicatorCol(Colours::white), dashFrame(0),
 compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f)), alphaRange(Range<float>(0.2f, 0.9f)), regressionRange(Range<float>(1.0f, 50.0f)),
 refreshRate(30), idleCounter(0)
@@ -51,9 +51,9 @@ void OscComponent::markAsActive()
 	toFront(true);
 }
 
-void OscComponent::synthWaveform(float* buff, const int& buffSize)
+void OscComponent::synthWaveform(float* buff)
 {
-    return osc->synthesizeWaveform(buff, buffSize);
+    return osc->synthesizeWaveform(buff);
 }
 
 void OscComponent::renderTouchPoints(Graphics& g)
@@ -192,14 +192,14 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             osc->updateRadius(rRef + touchHandler->getAnchorRadiusDelta()); // ref + delta
             osc->updateOrder(orderRef + touchHandler->getAnchorAngleDelta()*20);
 
-            osc->generateWavetable();
+            osc->generatePolygon();
             drawPoly(); // re-draw polygon
             break;
         case 3:
             osc->updateTeeth(teethRef - touchHandler->getTriAreaDelta());
             osc->updatePhaseOffset(phaseRef - touchHandler->getTriRotationDelta()*4);
 
-            osc->generateWavetable();
+            osc->generatePolygon();
             drawPoly();
             break;
         default:
@@ -246,7 +246,7 @@ void OscComponent::drawPoly()
     polyPath.clear();
     polyPath.startNewSubPath(mapToScreenCoords(Point<float>(osc->getDrawCoords(0)))); // starting the path at the first point
 
-    for (int i=1; i < osc->getTablesize(); i++)
+    for (int i=1; i < osc->getBufferSize(); i++)
     {
         polyPath.lineTo(mapToScreenCoords(Point<float>(osc->getDrawCoords(i)))); // add line segment to consequitve points
     }

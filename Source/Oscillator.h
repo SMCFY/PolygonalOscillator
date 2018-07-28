@@ -17,11 +17,11 @@ class Oscillator
 {
 public:
 
-	Oscillator(int fs);
+	Oscillator(int fs, int buffSize);
 	~Oscillator();
 
-	void generateWavetable();
-	void synthesizeWaveform(float* buff, const int& buffSize);
+	void generatePolygon();
+	void synthesizeWaveform(float* buff);
 
 	void updateFreq(const int& f0);
 	void updateOrder(const int& n);
@@ -35,10 +35,12 @@ public:
 	float getTeeth();
 	float getPhaseOffset();
 	float getRadius();
-	int getTablesize();
+	int getBufferSize();
 	Point<float> getDrawCoords(const int& i); // returns the cartesian coordinates of the sampled geometry for rendering
 
 private:
+
+	void polyBLAMP();
 
     int f0; // frequency
     float n; // order
@@ -47,15 +49,16 @@ private:
     float r; // radius (amplitude)
 
 	int fs; // sampling rate
-	int tableSize;
+	int buffSize;
     float pi;
 
-    float tableOverSamplingRatio; // oversampling ratio for synthesis
-    float tableDelta; // read increment for wavetable
-    float tableReadIndex; // init table read index
+    bool isClipped;
+    float pMax; // maximum radial amplitude
+
+    dsp::Phase<float> theta;
 
     float* p; // vector of radial amplitude
-	float* wavetable;
+    float* pRender; // radial amplitude used for rendering
 	std::complex<float>* polygon; // sampled polygon
 
  	// predefined ranges for oscillator parameters

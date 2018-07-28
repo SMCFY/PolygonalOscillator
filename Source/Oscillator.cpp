@@ -77,7 +77,7 @@ void Oscillator::synthesizeWaveform(float* buff)
     
             buff[i] = p[i]/pMax*radRange.getEnd() * std::sin(theta.phase); // sample the y axis with normalized radial amplitude
     
-            theta.advance(2*pi*float(f0)*(1/float(fs)));  // increment phase
+            theta.advance(2*pi*float(f0)*(1.0f/float(fs)));  // increment phase
         }
     }
     else
@@ -88,7 +88,7 @@ void Oscillator::synthesizeWaveform(float* buff)
     
             buff[i] = p[i] * std::sin(theta.phase); // sample the y axis
     
-            theta.advance(2*pi*float(f0)*(1/float(fs)));  // increment phase
+            theta.advance(2*pi*float(f0)*(1.0f/float(fs)));  // increment phase
         }
     }
 
@@ -96,15 +96,15 @@ void Oscillator::synthesizeWaveform(float* buff)
     polyBLAMP(buff); // apply polyBLAMP anti-aliasing
 
 
-    //if (TEMP < 10)
-    //{
-    //    for (int i = 0; i < buffSize; ++i)
-    //    {
-    //        std::cout << buff[i] << ", ";
-    //    }
-//
-    //    TEMP++;
-    //}
+    if (TEMP < 10)
+    {
+        for (int i = 0; i < buffSize; ++i)
+        {
+            std::cout << buff[i] << ", ";
+        }
+    
+        TEMP++;
+    }
 
 }
 
@@ -181,7 +181,7 @@ Point<float> Oscillator::getDrawCoords(const int& i)
 
 void Oscillator::polyBLAMP(float* buff)
 {
-
+    
     diff[0] = (diffBuff-buff[0]) - (buff[0]-buff[1]); // calculate first element from stored buffer
     for(int i = 1; i < buffSize; i++)
     {
@@ -193,13 +193,13 @@ void Oscillator::polyBLAMP(float* buff)
     diffBuff = buff[buffSize-1]; // update buffer with last sample from buffer
 
 
-
-    int nDisc = ceil(buffSize/(fs/f0*n)); // number of discontinuities
-
+    int nDisc = ceil(buffSize/(float(fs)/f0)*n); // number of discontinuities
+    
     for(int k = 0; k < nDisc; k++)
     {
-        float disc = fs/(n*f0)*k - fs/f0/(2*pi/phaseOffset)+1; // location of discontinuities expressed in samples
-
+        
+        float disc = float(fs)/(n*f0)*(k+1) - float(fs)/f0/(2*pi/phaseOffset); // location of discontinuities expressed in samples
+        
         // boundary samples
         int n3 = ceil(disc);
         int n1 = TouchHandler::negMod(n3-2, buffSize);

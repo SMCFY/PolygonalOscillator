@@ -1,11 +1,11 @@
 %% synthesis
 
 % core parameters
-a = 7; % schlalfi numerator
-b = 2; % schalfi denominator (a > 2b)
+a = 6; % schlalfi numerator
+b = 1; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
-f0 = 1220; % f0
-T = 0.2; % teeth
+f0 = 440; % f0
+T = 0.1; % teeth
 phaseOffset = pi/4; % initial phase
 R = 1; % scale
 
@@ -14,10 +14,9 @@ dPhase = 2*pi*f0*(1/fs); % phase increment
 sizeP = fs/f0*b; % period size in samples
 
 buffSize = 512;
-nBuffers = 50;
+nBuffers = 20;
 
-theta = phaseOffset; % init phase with offset, for radial amplitude calculation
-thetaSampling = 0; % init phase for sampling
+theta = 0; % init phase with offset, for radial amplitude calculation
 
 p = zeros(1, buffSize); % radial amplitude of geometry
 poly = zeros(1, buffSize); % sampled geometry
@@ -26,13 +25,11 @@ waveform = []; % projection
 for i=1:nBuffers
 
     for j=1:buffSize % geometry
-        p(j) = cos(pi/n) / cos(2*pi/n * mod(theta*n/(2*pi), 1) -pi/n + T) * R;
+        p(j) = cos(pi/n) / cos(2*pi/n * mod((theta+phaseOffset)*n/(2*pi), 1) -pi/n + T) * R;
+        
+ 
+        poly(j) = p(j) * (cos(theta) + 1j*sin(theta));
         theta = theta+dPhase;
-    end
-
-    for j=1:buffSize % sampling
-        poly(j) = p(j) * (cos(thetaSampling) + 1j*sin(thetaSampling));
-        thetaSampling = thetaSampling+dPhase;
     end
     
     waveform = [waveform imag(poly)]; % projection to y axis
@@ -45,15 +42,12 @@ end
 % end
 
 pDraw = zeros(1, buffSize);
-thetaDraw = phaseOffset;
-thetaSampling = 0;
+theta = 0;
 for i=1:buffSize % geometry
-    pDraw(i) = cos(pi/n) / cos(mod(thetaDraw, 2*pi/n) -pi/n + T) * R;
-    pDraw(i) = pDraw(i) * (cos(thetaSampling) + 1j*sin(thetaSampling));
+    pDraw(i) = cos(pi/n) / cos(mod(theta+phaseOffset, 2*pi/n) -pi/n + T) * R;
+    pDraw(i) = pDraw(i) * (cos(theta) + 1j*sin(theta));
     
-    thetaDraw = thetaDraw + (2*pi*b/buffSize);
-    thetaSampling = thetaSampling + (2*pi*b/buffSize);
-    
+    theta = theta + (2*pi*b/buffSize);
 end
 
 %% anti aliasing
@@ -100,14 +94,14 @@ end
 %% plot
 
 subplot(2,2,1);
-plot(real(pDraw)/max(real(pDraw)), imag(pDraw)/max(imag(pDraw)), 'r');
-axis([-1 1 -1 1]);
+plot(real(pDraw), imag(pDraw), 'r');
+axis([min(real(pDraw))-0.1 max(real(pDraw))+0.1 min(imag(pDraw))-0.1 max(imag(pDraw))+0.1]);
 axis equal;
 title('Complex plane');
 
 subplot(2,2,3);
 graph1 = plot(waveform, 'b');
-axis([1 sizeP -1 1]); % display the first period only
+axis([1 sizeP min(waveform) max(waveform)]); % display the first period only
 hold on;
 graph2 = plot(dx, '--');
 hold on;

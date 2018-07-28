@@ -3,12 +3,13 @@
 #include "Oscillator.h"
 
 Oscillator::Oscillator(int fs, int buffSize)
-: pi(MathConstants<float>::pi), f0(60), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f), isClipped(false), pMax(0),
+: pi(MathConstants<float>::pi), f0(440), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f), isClipped(false), pMax(0), diffBuff(0),
 freqRange(Range<int>(60, 2000)), orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 0.4f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.1f, 0.9f))
 {
     p = new float[buffSize];
     pRender = new float[buffSize];
     polygon = new std::complex<float>[buffSize];
+    diff = new float[buffSize];
     
     this->fs = fs;
     this->buffSize = buffSize;
@@ -23,6 +24,7 @@ Oscillator::~Oscillator()
     delete p;
     delete pRender;
 	delete polygon;
+    delete diff;
 }
 
 //==============================================================================
@@ -89,7 +91,21 @@ void Oscillator::synthesizeWaveform(float* buff)
             theta.advance(2*pi*float(f0)*(1/float(fs)));  // increment phase
         }
     }
+
     
+    polyBLAMP(buff); // apply polyBLAMP anti-aliasing
+
+
+    //if (TEMP < 10)
+    //{
+    //    for (int i = 0; i < buffSize; ++i)
+    //    {
+    //        std::cout << buff[i] << ", ";
+    //    }
+//
+    //    TEMP++;
+    //}
+
 }
 
 //==============================================================================
@@ -163,7 +179,48 @@ Point<float> Oscillator::getDrawCoords(const int& i)
 
 //==============================================================================
 
-void Oscillator::polyBLAMP()
+void Oscillator::polyBLAMP(float* buff)
 {
-    // aa goes here
+
+    diff[0] = (diffBuff-buff[0]) - (buff[0]-buff[1]); // calculate first element from stored buffer
+    for(int i = 1; i < buffSize; i++)
+    {
+        diff[i] = (buff[i-1]-buff[i]) - (buff[i]-buff[i+1]);
+    }
+    float sampEstimate = buff[buffSize-1] + (buff[buffSize-1]-buff[buffSize-2]); // estimate future sample through linear regression 
+    diff[buffSize-1] = (buff[buffSize-2]-buff[buffSize-1]) - (buff[buffSize-1]-sampEstimate); // last element is estimated
+
+    diffBuff = buff[buffSize-1]; // update buffer with last sample from buffer
+
+
+
+    int nDisc = ceil(buffSize/(fs/f0*n)); // number of discontinuities
+
+    for(int k = 0; k < nDisc; k++)
+    {
+        float disc = fs/(n*f0)*k - fs/f0/(2*pi/phaseOffset)+1; // location of discontinuities expressed in samples
+
+        // boundary samples
+        int n3 = ceil(disc);
+        int n1 = TouchHandler::negMod(n3-2, buffSize);
+        int n2 = TouchHandler::negMod(n1+1, buffSize);
+        int n4 = TouchHandler::negMod(n3+1, buffSize);
+
+        float d = n3 - disc; // fractional delay between the discontinuity and the next sample
+
+        float u = abs(diff[n2]+ (disc-n2) * ((diff[n3]-diff[n2]) / (n3-n2)) ) *2; // slope of the derivative at the exact discontinuity
+
+        // 4-point polyBLAMP residual coefficients
+        float p0 = pow(d,5)/120;
+        float p1 = (-3*pow(d,5) +5*pow(d,4) +10*pow(d,3) +10*pow(d,2) +5*d +1)/120;
+        float p2 = (3*pow(d,5) -10*pow(d,4) +40*pow(d,2) -60*d +28)/120;
+        float p3 = (-pow(d,5) +5*pow(d,4) -10*pow(d,3) +10*pow(d,2) -5*d +1)/120;
+
+        // waveform correction on the four samples around the discontinuity
+        buff[n1] -= p0*u * ((buff[n1] > 0) ? (1):(-1));
+        buff[n2] -= p1*u * ((buff[n2] > 0) ? (1):(-1));
+        buff[n3] -= p2*u * ((buff[n3] > 0) ? (1):(-1));
+        buff[n4] -= p3*u * ((buff[n4] > 0) ? (1):(-1));
+
+    }
 }

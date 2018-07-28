@@ -11,6 +11,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include <complex>
 #include "math.h"
+#include "TouchHandler.h"
 
 
 class Oscillator
@@ -39,8 +40,8 @@ public:
 	Point<float> getDrawCoords(const int& i); // returns the cartesian coordinates of the sampled geometry for rendering
 
 private:
-
-	void polyBLAMP();
+	int TEMP = 0;
+	void polyBLAMP(float* buff);
 
     int f0; // frequency
     float n; // order
@@ -54,8 +55,10 @@ private:
 
     bool isClipped;
     float pMax; // maximum radial amplitude
-
     dsp::Phase<float> theta;
+
+	float* diff; // second order difference of the synthesized waveform
+    float diffBuff; // buffer storing 2nd order difference over frames
 
     float* p; // vector of radial amplitude
     float* pRender; // radial amplitude used for rendering

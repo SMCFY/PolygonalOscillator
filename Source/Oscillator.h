@@ -59,6 +59,7 @@ private:
 
 	float* diff; // second order difference of the synthesized waveform
     float diffBuff; // buffer storing 2nd order difference over frames
+    float disc; // location of discontinuity, expressed in samples
 
     float* p; // vector of radial amplitude
     float* pRender; // radial amplitude used for rendering

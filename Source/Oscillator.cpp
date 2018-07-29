@@ -3,7 +3,7 @@
 #include "Oscillator.h"
 
 Oscillator::Oscillator(int fs, int buffSize)
-: pi(MathConstants<float>::pi), f0(440), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f), isClipped(false), pMax(0), diffBuff(0),
+: pi(MathConstants<float>::pi), f0(440), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f), isClipped(false), pMax(0), diffBuff(0), disc(0),
 freqRange(Range<int>(60, 2000)), orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 0.4f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.1f, 0.9f))
 {
     p = new float[buffSize];
@@ -96,15 +96,15 @@ void Oscillator::synthesizeWaveform(float* buff)
     polyBLAMP(buff); // apply polyBLAMP anti-aliasing
 
 
-    if (TEMP < 10)
-    {
-        for (int i = 0; i < buffSize; ++i)
-        {
-            std::cout << buff[i] << ", ";
-        }
-    
-        TEMP++;
-    }
+    //if (TEMP < 10)
+    //{
+    //    for (int i = 0; i < buffSize; ++i)
+    //    {
+    //        std::cout << buff[i] << ", ";
+    //    }
+    //
+    //    TEMP++;
+    //}
 
 }
 
@@ -194,11 +194,12 @@ void Oscillator::polyBLAMP(float* buff)
 
 
     int nDisc = ceil(buffSize/(float(fs)/f0)*n); // number of discontinuities
+    float dDisc = float(fs)/(n*f0); // interval between discontinuities
     
     for(int k = 0; k < nDisc; k++)
     {
         
-        float disc = float(fs)/(n*f0)*(k+1) - float(fs)/f0/(2*pi/phaseOffset); // location of discontinuities expressed in samples
+        disc = fmod(disc+dDisc - float(fs)/f0/(2*pi/phaseOffset), buffSize); // location of discontinuities expressed in samples
         
         // boundary samples
         int n3 = ceil(disc);

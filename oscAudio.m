@@ -1,20 +1,20 @@
 %% synthesis
 
 % core parameters
-a = 6; % schlalfi numerator
-b = 1; % schalfi denominator (a > 2b)
+a = 5; % schlalfi numerator
+b = 2; % schalfi denominator (a > 2b)
 n = a/b; % order (schlalfi symbol)
 f0 = 440; % f0
-T = 0.1; % teeth
-phaseOffset = pi/4; % initial phase
-R = 1; % scale
+T = 0.0; % teeth
+phaseOffset = pi/5; % initial phase
+R = 0.9; % scale
 
 fs = 44100;
 dPhase = 2*pi*f0*(1/fs); % phase increment
 sizeP = fs/f0*b; % period size in samples
 
-buffSize = 512;
-nBuffers = 20;
+buffSize = 256;
+nFrames = 10;
 
 theta = 0; % init phase with offset, for radial amplitude calculation
 
@@ -22,7 +22,7 @@ p = zeros(1, buffSize); % radial amplitude of geometry
 poly = zeros(1, buffSize); % sampled geometry
 waveform = []; % projection
 
-for i=1:nBuffers
+for i=1:nFrames
 
     for j=1:buffSize % geometry
         p(j) = cos(pi/n) / cos(2*pi/n * mod((theta+phaseOffset)*n/(2*pi), 1) -pi/n + T) * R;
@@ -34,12 +34,6 @@ for i=1:nBuffers
     
     waveform = [waveform imag(poly)]; % projection to y axis
 end
-
-% vertices = zeros(2, a); % location of vertices
-% for i=1:a
-%     vertices(1,i) = cos(2*pi/a*i + phaseOffset * R); % x
-%     vertices(2,i) = sin(2*pi/a*i + phaseOffset * R); % y
-% end
 
 pDraw = zeros(1, buffSize);
 theta = 0;

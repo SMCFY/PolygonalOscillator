@@ -58,7 +58,7 @@ private:
     dsp::Phase<float> theta;
 
 	float* diff; // second order difference of the synthesized waveform
-    float diffBuff; // buffer storing 2nd order difference over frames
+    float diffBuff; // storing the last sample of the frame, for calculating difference
     float disc; // location of discontinuity, expressed in samples
 
     float* p; // vector of radial amplitude

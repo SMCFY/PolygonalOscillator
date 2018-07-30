@@ -182,7 +182,7 @@ Point<float> Oscillator::getDrawCoords(const int& i)
 void Oscillator::polyBLAMP(float* buff)
 {
     
-    diff[0] = (diffBuff-buff[0]) - (buff[0]-buff[1]); // calculate first element from stored buffer
+    diff[0] = (diffBuff-buff[0]) - (buff[0]-buff[1]); // calculate first element from stored buffer (offset)
     for(int i = 1; i < buffSize; i++)
     {
         diff[i] = (buff[i-1]-buff[i]) - (buff[i]-buff[i+1]);

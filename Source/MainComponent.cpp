@@ -4,7 +4,8 @@
 
 MainComponent::MainComponent()
 : numberOfChannels(2), cutoff(4000), filterOrder(21), filterWindow(dsp::WindowingFunction<float>::blackman),
-attackMax(500), releaseMax(1000)
+attackMax(500), releaseMax(1000),
+bg(ImageFileFormat::loadFrom(BinaryData::concrete_bg_png, (size_t) BinaryData::concrete_bg_pngSize))
 {
     setSize(800, 600);
     setAudioChannels(0, numberOfChannels);
@@ -67,7 +68,8 @@ void MainComponent::releaseResources()
 //==============================================================================
 void MainComponent::paint (Graphics& g)
 {
-    g.fillAll(Colour().fromRGB(30, 30, 30)); // background
+    //g.fillAll(Colour().fromRGB(30, 30, 30)); // background
+    g.drawImageWithin(bg, 0, 0, getWidth(), getHeight(), RectanglePlacement::centred);
     
     for(int i=0; i<oscillatorBank.size(); i++)
     {

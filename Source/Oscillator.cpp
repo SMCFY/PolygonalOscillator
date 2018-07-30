@@ -3,7 +3,7 @@
 #include "Oscillator.h"
 
 Oscillator::Oscillator(int fs, int buffSize)
-: pi(MathConstants<float>::pi), f0(440), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f), isClipped(false), pMax(0), diffBuff(0), disc(0),
+: pi(MathConstants<float>::pi), f0(60), n(4), t(0.0f), phaseOffset(0.0f), r(0.9f), isClipped(false), pMax(0), diffBuff(0), disc(0),
 freqRange(Range<int>(60, 2000)), orderRange(Range<int>(3, 30)), teethRange(Range<float>(0.0f, 0.4f)), phaseOffRange(Range<float>(0.0f, MathConstants<float>::twoPi)), radRange(Range<float>(0.1f, 0.9f))
 {
     p = new float[buffSize];

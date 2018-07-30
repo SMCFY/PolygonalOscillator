@@ -64,6 +64,7 @@ void Oscillator::generatePolygon()
 
         phi.advance(2*pi/buffSize);
     }
+
 }
 
 void Oscillator::synthesizeWaveform(float* buff)
@@ -93,18 +94,7 @@ void Oscillator::synthesizeWaveform(float* buff)
     }
 
     
-    polyBLAMP(buff); // apply polyBLAMP anti-aliasing
-
-
-    //if (TEMP < 10)
-    //{
-    //    for (int i = 0; i < buffSize; ++i)
-    //    {
-    //        std::cout << buff[i] << ", ";
-    //    }
-    //
-    //    TEMP++;
-    //}
+    //polyBLAMP(buff); // apply polyBLAMP anti-aliasing
 
 }
 

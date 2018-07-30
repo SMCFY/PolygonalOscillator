@@ -14,10 +14,10 @@
 class FirLpf
 {
 public:
-	FirLpf(int fs, int numChannels, int samplesPerFame, int filterOrder);
+	FirLpf(int fs, int numChannels, int samplesPerFame, int order);
 	~FirLpf();
 
-    void process(AudioBuffer<float> buff);
+    void process(AudioBuffer<float>& buff);
     
     void setCutoff(const float& fc);
 

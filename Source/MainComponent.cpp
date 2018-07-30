@@ -3,8 +3,7 @@
 #include "MainComponent.h"
 
 MainComponent::MainComponent()
-: numberOfChannels(2), cutoff(4000), filterOrder(21), filterWindow(dsp::WindowingFunction<float>::blackman),
-attackMax(500), releaseMax(1000),
+: numberOfChannels(2), attackMax(500), releaseMax(1000),
 bg(ImageFileFormat::loadFrom(BinaryData::concrete_bg_png, (size_t) BinaryData::concrete_bg_pngSize))
 {
     setSize(800, 600);
@@ -24,10 +23,6 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     samplesPerFrame = samplesPerBlockExpected;
 
     synthBuff = AudioBuffer<float>(1, samplesPerFrame); // initialize oscillator output buffer with a single channel
-    
-    dsp::ProcessSpec spec = {sampleRate, (uint32)samplesPerFrame, (uint32)numberOfChannels}; // filter specification
-    lpf.state = dsp::FilterDesign<float>::designFIRLowpassWindowMethod (cutoff, fs, filterOrder, filterWindow); // filter design
-    lpf.prepare(spec);
 
 }
 
@@ -47,13 +42,11 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         }
         
         oscillatorBank[i]->env->process(synthBuff); // process oscillator output buffer with respective envelope
+        // oscillatorBank[i]->lpf->process(synthBuff); // filtering
 
         for (int ch=0; ch < numberOfChannels; ch++)
             bufferToFill.buffer->addFrom(ch, 0, synthBuff, 0, 0, samplesPerFrame, 1.0f/float(oscillatorBank.size())); // add the oscillator outputs to the output buffer with equal weights
     }
-    
-    dsp::AudioBlock<float> block(*bufferToFill.buffer); // init audio block with output buffer
-    lpf.process(dsp::ProcessContextReplacing<float>(block)); // process block
     
 }
 
@@ -89,7 +82,7 @@ void MainComponent::resized()
 
 void MainComponent::createOscillator(const Point<float>& p)
 {
-    OscInstance* o = new OscInstance(p, fs, samplesPerFrame);
+    OscInstance* o = new OscInstance(p, fs, samplesPerFrame, numberOfChannels);
     
     o->oscComp->setComponentID(String(oscillatorBank.size())); // new instance gets id mathcing its future index in the array
     o->oscComp->addComponentListener(this);

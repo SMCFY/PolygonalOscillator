@@ -40,7 +40,7 @@ public:
 	Point<float> getDrawCoords(const int& i); // returns the cartesian coordinates of the sampled geometry for rendering
 
 private:
-	int TEMP = 0;
+
 	void polyBLAMP(float* buff);
 
     int f0; // frequency

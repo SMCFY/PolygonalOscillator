@@ -11,7 +11,7 @@ refreshRate(30), idleCounter(0)
 	setBounds(p.x-compSize/2, p.y-compSize/2, compSize, compSize);
     size = compSize-50;
     
-    tweakIndicatorSize = compSize*0.85;
+    idleIndicatorSize = compSize*0.85;
 
     regressionRef = regressionRange.getStart();
     orderRef = osc->getOrder();
@@ -122,7 +122,7 @@ void OscComponent::paint(Graphics& g)
     if(idleCounter >= refreshRate/2)
     {
         setTransparency(1.0f); // render full opaque on interaction
-        renderTweakIndicator(g);
+        renderIdleIndicator(g);
     }
     else
         setTransparency(*ramp); // change transparency according to envelope
@@ -223,16 +223,16 @@ void OscComponent::renderSelectionIndicator(Graphics& g)
     }
 }
 
-void OscComponent::renderTweakIndicator(Graphics& g)
+void OscComponent::renderIdleIndicator(Graphics& g)
 {
-        Path tweakCircle;
-        tweakCircle.addEllipse(compSize-tweakIndicatorSize/2, compSize-tweakIndicatorSize/2, tweakIndicatorSize, tweakIndicatorSize);
+        Path idleCircle;
+        idleCircle.addEllipse(compSize-idleIndicatorSize/2, compSize-idleIndicatorSize/2, idleIndicatorSize, idleIndicatorSize);
         g.setColour(touchIndicatorCol);
         g.setOpacity(touchIndicatorAlpha);
-        PathStrokeType tweakStroke = PathStrokeType(touchIndicatorThickness/2);
+        PathStrokeType idleStroke = PathStrokeType(touchIndicatorThickness/2);
         dashFrame++;
-        tweakStroke.createDashedStroke(tweakCircle, tweakCircle, tweakIndicatorDash[int(floor(dashFrame/(refreshRate/5))) % 4], 4);
-        g.strokePath(tweakCircle, tweakStroke);
+        idleStroke.createDashedStroke(idleCircle, idleCircle, idleIndicatorDash[int(floor(dashFrame/(refreshRate/5))) % 4], 4);
+        g.strokePath(idleCircle, idleStroke);
 }
 
 void OscComponent::renderPoly(Graphics& g)

@@ -44,7 +44,7 @@ public:
 private:
 
     void renderSelectionIndicator(Graphics& g); // renders indicator for selected component
-    void renderTweakIndicator(Graphics& g); // renders an indicator if trajectory based interaction is allowed
+    void renderIdleIndicator(Graphics& g); // renders an indicator if trajectory based interaction is allowed
     void renderPoly(Graphics& g); // renders the geometry
     void drawPoly(); // draws the geometry from line segments
     Point<float> mapToScreenCoords(const Point<float>& coords); // maps the polygon coordinates to the component's screen coordinates
@@ -69,8 +69,8 @@ private:
     float touchIndicatorAlpha;
     Colour touchIndicatorCol;
     float touchIndicatorDash[2] = {15.0f, 10.0f};
-    float tweakIndicatorSize;
-    float tweakIndicatorDash[4][4] = { {15.0f, 10.0f, 15.0f, 10.0f}, {0.0f, 5.0f, 15.0f, 5.0f}, {0.0f, 10.0f, 15.0f, 0.0f}, {7.5f, 10.0f, 7.5f, 0.0f} };
+    float idleIndicatorSize;
+    float idleIndicatorDash[4][4] = { {15.0f, 10.0f, 15.0f, 10.0f}, {0.0f, 5.0f, 15.0f, 5.0f}, {0.0f, 10.0f, 15.0f, 0.0f}, {7.5f, 10.0f, 7.5f, 0.0f} };
     int dashFrame; // index keeping track of dash animation frame
 
     float regressionRef;

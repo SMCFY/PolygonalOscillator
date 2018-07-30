@@ -12,6 +12,7 @@
 #include "OscComponent.h"
 #include "Sequencer.h"
 #include "Envelope.h"
+#include "FirLpf.h"
 
 class MainComponent : public AudioAppComponent, public ComponentListener
 {
@@ -50,28 +51,26 @@ private:
         OscComponent* oscComp; // oscillator component
         Sequencer* seq;
         Envelope* env;
-        OscInstance(const Point<float>& p, int fs, int samplesPerFrame)
+        FirLpf* lpf;
+        OscInstance(const Point<float>& p, int fs, int samplesPerFrame, int channels)
         {
             seq = new Sequencer();
             env = new Envelope(Envelope::AR);
             env->setSamplingRate(fs);
             oscComp = new OscComponent(p, fs, samplesPerFrame);
             oscComp->mapRamp(env->getAmplitude()); // return pointer to the envelope's amplitude
+            lpf = new FirLpf(fs, channels, samplesPerFrame, 21);
         }
         ~OscInstance()
         {
             delete oscComp;
             delete seq;
             delete env;
+            delete lpf;
         }
     } OscInstance;
 
     OwnedArray<OscInstance> oscillatorBank;
-
-    dsp::ProcessorDuplicator<dsp::FIR::Filter<float>, dsp::FIR::Coefficients<float>> lpf; // filter
-    float cutoff; // cutoff frequency
-    int filterOrder;
-    dsp::WindowingFunction<float>::WindowingMethod filterWindow;
 
     int attackMax, releaseMax; // maximum attack and release in milliseconds
 

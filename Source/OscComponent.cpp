@@ -5,7 +5,7 @@
 OscComponent::OscComponent(const Point<float>& p, int fs, int samplesPerFrame)
 : osc(new Oscillator(fs, samplesPerFrame)), touchHandler(new TouchHandler()),
 touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.2f), touchIndicatorCol(Colours::white), dashFrame(0),
-compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f)), alphaRange(Range<float>(0.2f, 0.9f)), regressionRange(Range<float>(1.0f, 50.0f)),
+compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f)), alphaRange(Range<float>(0.2f, 0.9f)), regressionRange(Range<float>(1.0f, 50.0f)), saturationRange(Range<float>(0.2f, 1.0f)),
 refreshRate(30), idleCounter(0)
 {
 	setBounds(p.x-compSize/2, p.y-compSize/2, compSize, compSize);
@@ -19,7 +19,7 @@ refreshRate(30), idleCounter(0)
     phaseRef = osc->getPhaseOffset();
     rRef = osc->getRadius();
 
-    setSaturation(regressionRef/regressionRange.getEnd()); // set saturation according to f0
+    setSaturation(regressionRef/regressionRange.getEnd()+saturationRange.getStart()); // set saturation according to f0
 
     drawPoly();
     
@@ -94,7 +94,7 @@ void OscComponent::setBrightness(const float& brightness)
 
 void OscComponent::setSaturation(const float& saturation)
 {
-    col = col.withSaturation(saturation);
+    col = col.withSaturation(saturationRange.clipValue(saturation));
 }
 
 void OscComponent::setTransparency(const float& alpha)
@@ -180,7 +180,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
                 regressionRef = regressionRange.clipValue(regressionRef + touchHandler->getCircularRegression());
 
                 osc->updateFreq(TouchHandler::linToExp(regressionRef, regressionRange, Range<float>(osc->getFreqLimits().getStart(), osc->getFreqLimits().getEnd())));
-                setSaturation(regressionRef/regressionRange.getEnd());
+                setSaturation(regressionRef/regressionRange.getEnd()+saturationRange.getStart());
             }
             else
             {

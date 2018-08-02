@@ -93,8 +93,8 @@ void Oscillator::synthesizeWaveform(float* buff)
         }
     }
 
-    
-    //polyBLAMP(buff); // apply polyBLAMP anti-aliasing
+    if(t == 0) // the teeth parameter doubles the number of discontinuities, which is not supported by the current implementation of polyBLAMP
+        polyBLAMP(buff); // apply polyBLAMP anti-aliasing
 
 }
 

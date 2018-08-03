@@ -189,7 +189,7 @@ void Oscillator::polyBLAMP(float* buff)
     for(int k = 0; k < nDisc; k++)
     {
         
-        disc = fmod(disc+dDisc - float(fs)/f0/(2*pi/phaseOffset), buffSize); // location of discontinuities expressed in samples
+        disc = TouchHandler::negMod(disc+dDisc - float(fs)/f0/(2*pi/phaseOffset), buffSize); // location of discontinuities expressed in samples
         
         // boundary samples
         int n3 = ceil(disc);

@@ -119,7 +119,7 @@ void OscComponent::paint(Graphics& g)
     renderSelectionIndicator(g);
     renderPoly(g);
 
-    if(idleCounter >= refreshRate/2)
+    if(idleCounter >= refreshRate/4)
     {
         setTransparency(1.0f); // render full opaque on interaction
         renderIdleIndicator(g);
@@ -174,7 +174,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
     switch(touchHandler->getNumPoints()) // mapping based on number of touch points
     {
         case 1:
-            if(idleCounter >= refreshRate/2) // exceeding 0.5 second idle time
+            if(idleCounter >= refreshRate/4) // exceeding 0.5 second idle time
             {
                 touchHandler->sampleTouchPointCoordinate(e); // sample the coordinates of the touch point over time
                 regressionRef = regressionRange.clipValue(regressionRef + touchHandler->getCircularRegression());

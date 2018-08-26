@@ -79,6 +79,8 @@ private:
     float teethRef;
     float phaseRef;
     float rRef;
+    Point<float> posRef;
+    Point<float> posInit;
 
     int refreshRate; // refresh rate of timer callback
     int idleCounter; // counter to keep track of idle time on interaction

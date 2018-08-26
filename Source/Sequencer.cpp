@@ -3,7 +3,7 @@
 #include "Sequencer.h"
 
 Sequencer::Sequencer()
-: tempoRange(Range<int>(30, 360)), tempo(0)
+: tempoRange(Range<int>(10, 60)), tempo(0)
 {
 
 }

@@ -18,6 +18,7 @@ refreshRate(30), idleCounter(0)
     teethRef = osc->getTeeth();
     phaseRef = osc->getPhaseOffset();
     rRef = osc->getRadius();
+    posRef = p;
 
     setSaturation(regressionRef/regressionRange.getEnd()+saturationRange.getStart()); // set saturation according to f0
 
@@ -143,6 +144,7 @@ void OscComponent::mouseDown(const MouseEvent& e)
     if(touchHandler->getNumPoints() == 1) // selection and dragging of oscillators
     {
         markAsActive();
+        posInit = Point<float>(e.getScreenX(), e.getScreenY());
 
         setBounds(getX()-compSize/2, getY()-compSize/2, compSize*2, compSize*2); // resize component to facilitate interactions
         drawPoly();
@@ -163,6 +165,8 @@ void OscComponent::mouseUp(const MouseEvent& e)
     if(touchHandler->getNumPoints() == 0)
     {
         setBounds(getX()+compSize/2, getY()+compSize/2, compSize, compSize); // reset size
+        posRef = Point<float>(getX()+compSize/2, getY()+compSize/2);
+        
         drawPoly();
     }
 }
@@ -185,7 +189,7 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             else
             {
                 idleCounter = 0; // reset idle time counter
-                setCentrePosition(e.getScreenX(), e.getScreenY());
+                setCentrePosition(posRef.x + (e.getScreenX()-posInit.x), posRef.y + (e.getScreenY()-posInit.y));
             }
             break;
         case 2:

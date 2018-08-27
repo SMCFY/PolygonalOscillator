@@ -55,7 +55,7 @@ private:
         OscInstance(const Point<float>& p, int fs, int samplesPerFrame, int channels)
         {
             seq = new Sequencer();
-            env = new Envelope(Envelope::AR);
+            env = new Envelope(Envelope::ADSR);
             env->setSamplingRate(fs);
             oscComp = new OscComponent(p, fs, samplesPerFrame);
             oscComp->mapRamp(env->getAmplitude()); // return pointer to the envelope's amplitude

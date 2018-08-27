@@ -3,15 +3,15 @@
 #include "Envelope.h"
 
 Envelope::Envelope()
-: aMin(0.001f), trig(0), noteOn(0), amplitude(1), fs(44100), attack(0), decay(0), release(0), envelopeType(Envelope::env::ADSR),
+: aMin(0.001f), trig(0), amplitude(1), fs(44100), attack(0), decay(0), sustain(0), release(0), envelopeType(Envelope::env::ADSR),
 attackTime(200), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(1000)
 {
 
 }
 
 Envelope::Envelope(Envelope::env type)
-: aMin(0.001f), trig(0), noteOn(0), amplitude(1), fs(44100), attack(0), decay(0), release(0),
-attackTime(200), peak(0.95), decayTime(200), sustainLevel(0.8), releaseTime(1000)
+: aMin(0.001f), trig(0), amplitude(1), fs(44100), attack(0), decay(0), sustain(0), release(0),
+attackTime(200), peak(0.95), decayTime(200), sustainLevel(0.95), releaseTime(1000)
 {
 	envelopeType = type;
 }
@@ -25,17 +25,24 @@ Envelope::~Envelope()
 
 void Envelope::trigger()
 {
-	trig = true;
+	trig = 1;
+}
 
-	if(!trig) // note off
-		noteOn = 0;
+void Envelope::noteOn()
+{
+	sustain = 1;
+}
+
+void Envelope::noteOff()
+{
+	sustain = 0;
 }
 
 float Envelope::envelopeAR() // AR
 {
     relDelta = pow(aMin, peak / std::round(fs * (releaseTime/1000.0f))); // exponential release
     
-    if(trig && !noteOn) // init on trigger/re-trigger
+    if(trig) // init on trigger/re-trigger
 	{
  		attack = 1;
     	release = 1;
@@ -77,12 +84,13 @@ float Envelope::envelopeADSR() // ADSR
 {
     relDelta = pow(aMin, sustainLevel / std::round(fs * (releaseTime/1000.0f))); // exponential release
 
-	if(trig && !noteOn) // init on trigger/re-trigger
+	if(trig && !sustain) // init on trigger/re-trigger
 	{
 		attack = 1;
 		decay = 1;
-		noteOn = 1; // sustain
     	release = 1;
+
+    	trig = 0;
 	    
     	attDelta = peak / std::round(fs * (attackTime/1000.0f)); // linear attack
     	decDelta = pow(aMin, peak / std::round(fs * (decayTime/1000.0f))); // exponential decay
@@ -108,7 +116,7 @@ float Envelope::envelopeADSR() // ADSR
 		}
 		return amplitude;
 	}
-	else if(noteOn) // sustain phase
+	else if(sustain) // sustain phase
 	{
 		amplitude = sustainLevel;
 		return amplitude;

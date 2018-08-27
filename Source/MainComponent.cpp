@@ -35,6 +35,11 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     {   
         oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0)); // synthesize waveform to oscillator output buffer
 
+        if(oscillatorBank[i]->oscComp->getMode() == 1) // sustain envelope in idle mode
+            oscillatorBank[i]->env->noteOn();
+        else
+            oscillatorBank[i]->env->noteOff();
+
         oscillatorBank[i]->seq->updateCounter(); // update counter
         if(oscillatorBank[i]->seq->tick()) // trigger envelope according to set tempo
         {

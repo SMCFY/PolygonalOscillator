@@ -20,6 +20,9 @@ class Envelope
 		~Envelope();
 
 		void trigger();
+		void noteOn();
+		void noteOff();
+
 		float envelopeAR(); // AR envelope
 		float envelopeADSR(); // ADSR envelope
 
@@ -39,7 +42,6 @@ class Envelope
 		bool trig;
 		int fs;
 		float aMin;
-		bool noteOn;
 
 		// envelope parameters
 		env envelopeType; 
@@ -52,6 +54,7 @@ class Envelope
 		// phase conditions
 		bool attack;
     	bool decay;
+    	bool sustain;
     	bool release;
 		
 		// amplitude increment/decrement

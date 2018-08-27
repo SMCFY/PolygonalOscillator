@@ -38,6 +38,8 @@ void Envelope::noteOff()
 	sustain = 0;
 }
 
+//=============================================================================
+
 float Envelope::envelopeAR() // AR
 {
     relDelta = pow(aMin, peak / std::round(fs * (releaseTime/1000.0f))); // exponential release

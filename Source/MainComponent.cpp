@@ -27,25 +27,25 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
-{
-    
+{  
     bufferToFill.clearActiveBufferRegion();
+    
     
     for (int i = 0; i < oscillatorBank.size(); i++)
     {   
         oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0)); // synthesize waveform to oscillator output buffer
+
 
         if(oscillatorBank[i]->oscComp->getMode() == 1) // sustain envelope in idle mode
             oscillatorBank[i]->env->noteOn();
         else
             oscillatorBank[i]->env->noteOff();
 
-        oscillatorBank[i]->seq->updateCounter(); // update counter
-        if(oscillatorBank[i]->seq->tick()) // trigger envelope according to set tempo
+
+        if(oscillatorBank[i]->seq->nudge()) // nudge sequencer
         {
-            oscillatorBank[i]->env->trigger(); // trigger
+            oscillatorBank[i]->env->trigger(); // trigger envelope
         }
-        
         oscillatorBank[i]->env->process(synthBuff); // process oscillator output buffer with respective envelope
         // oscillatorBank[i]->lpf->process(synthBuff); // filtering
 
@@ -143,9 +143,9 @@ void MainComponent::componentBroughtToFront(Component& component)
 
 void MainComponent::componentMovedOrResized (Component &component, bool wasMoved, bool wasResized)
 {
-    // tempo
+    // timing
     float normCoordX = float(component.getPosition().getX()+component.getWidth()/2) / float(getWidth()); // normalised position of the components center on the x axis
-    oscillatorBank[component.getComponentID().getIntValue()]->seq->calculateTempo(normCoordX); // change tempo according to component's center position
+    oscillatorBank[component.getComponentID().getIntValue()]->seq->calculateEventLoc(normCoordX); // change sequencing according to component's center position
 
     // attack, release
     float normCoordY = float(component.getPosition().getY()+component.getHeight()/2) / float(getHeight()); // normalised position of the components center on the y axis

@@ -3,7 +3,7 @@
 #include "Sequencer.h"
 
 Sequencer::Sequencer()
-: tempoRange(Range<int>(10, 60)), tempo(0), loopLength(3000), loopPos(0), wait(false)
+: tempoRange(Range<int>(10, 60)), tempo(0), loopLength(2000), loopPos(0), wait(false)
 {
 	eventLoc = loopLength;
 }

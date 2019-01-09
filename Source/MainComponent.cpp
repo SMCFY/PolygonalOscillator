@@ -3,7 +3,7 @@
 #include "MainComponent.h"
 
 MainComponent::MainComponent()
-: numberOfChannels(2),
+: numberOfChannels(2), childSize(300),
 bg(ImageFileFormat::loadFrom(BinaryData::concrete_bg_png, (size_t) BinaryData::concrete_bg_pngSize))
 {
     setSize(800, 600);
@@ -70,6 +70,7 @@ void MainComponent::paint (Graphics& g)
     for(int i=0; i<oscillatorBank.size(); i++)
     {
         oscillatorBank[i]->oscComp->renderTouchPoints(g);
+        oscillatorBank[i]->scope->repaint();
     }
 
 }
@@ -85,10 +86,11 @@ void MainComponent::resized()
 
 void MainComponent::createOscillator(const Point<float>& p)
 {
-    OscInstance* o = new OscInstance(p, fs, samplesPerFrame, numberOfChannels);
+    OscInstance* o = new OscInstance(p, fs, samplesPerFrame, numberOfChannels, Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f), childSize);
     
     o->oscComp->setComponentID(String(oscillatorBank.size())); // new instance gets id mathcing its future index in the array
     o->oscComp->addComponentListener(this);
+    addAndMakeVisible(o->scope);
     addAndMakeVisible(o->oscComp);
     oscillatorBank.add(o);
 
@@ -139,7 +141,11 @@ void MainComponent::componentBroughtToFront(Component& component)
 }
 
 void MainComponent::componentMovedOrResized (Component &component, bool wasMoved, bool wasResized)
-{    
+{   
+    oscillatorBank[component.getComponentID().getIntValue()]->scope->setTopLeftPosition(
+        oscillatorBank[component.getComponentID().getIntValue()]->oscComp->getX() +
+        oscillatorBank[component.getComponentID().getIntValue()]->oscComp->getWidth()/2 - childSize/2, 0);
+
     // timing
     float normCoordX = float(component.getPosition().getX()+component.getWidth()/2) / float(getWidth()); // normalised position of the components center on the x axis
     oscillatorBank[component.getComponentID().getIntValue()]->seq->calculateEventLoc(normCoordX); // change sequencing according to component's center position

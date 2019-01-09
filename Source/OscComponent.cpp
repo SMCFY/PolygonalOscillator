@@ -2,14 +2,17 @@
 
 #include "OscComponent.h"
 
-OscComponent::OscComponent(const Point<float>& p, int fs, int samplesPerFrame)
+OscComponent::OscComponent(const Point<float>& p, int fs, int samplesPerFrame, Colour col, float size)
 : osc(new Oscillator(fs, samplesPerFrame)), touchHandler(new TouchHandler()),
 touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.2f), touchIndicatorCol(Colours::white), dashFrame(0),
-compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f)), alphaRange(Range<float>(0.2f, 0.9f)), regressionRange(Range<float>(1.0f, 50.0f)), saturationRange(Range<float>(0.2f, 1.0f)),
+lineThickness(5), alphaRange(Range<float>(0.2f, 0.9f)), regressionRange(Range<float>(1.0f, 50.0f)), saturationRange(Range<float>(0.2f, 1.0f)),
 refreshRate(30), idleCounter(0)
 {
+    this->col = col;
+    compSize = size;
+
 	setBounds(p.x-compSize/2, p.y-compSize/2, compSize, compSize);
-    size = compSize-50;
+    renderSize = compSize-50;
     
     idleIndicatorSize = compSize*0.85;
 
@@ -25,6 +28,9 @@ refreshRate(30), idleCounter(0)
     drawPoly();
     
     startTimerHz(refreshRate);
+
+    setAlwaysOnTop(true);
+    
 }
 
 
@@ -35,6 +41,7 @@ OscComponent::~OscComponent()
 }
 
 //==============================================================================
+
 void OscComponent::setActive()
 {
 	active = true;
@@ -273,11 +280,11 @@ Point<float> OscComponent::mapToScreenCoords(const Point<float>& coords)
     p.x+= 1.0f; // nudge the range to 0 to 2
     p.y+= 1.0f;
 
-    p.x *= size/2; // scale
-    p.y *= size/2;
+    p.x *= renderSize/2; // scale
+    p.y *= renderSize/2;
 
-    p.x+= (getWidth()-size)/2; // offset
-    p.y+= (getHeight()-size)/2;
+    p.x+= (getWidth()-renderSize)/2; // offset
+    p.y+= (getHeight()-renderSize)/2;
     
     return p;
 }

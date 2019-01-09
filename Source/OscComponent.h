@@ -11,13 +11,14 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "Oscillator.h"
 #include "TouchHandler.h"
+#include "Oscilloscope.h"
 
 
 class OscComponent : public Component, public Timer
 {
 public:
 
-    OscComponent(const Point<float>& p, int fs, int samplesPerFrame);
+    OscComponent(const Point<float>& p, int fs, int samplesPerFrame, Colour col, float size);
 	~OscComponent();
 
     void setActive();
@@ -53,10 +54,10 @@ private:
 	bool active;
 	
 	Oscillator* osc;
-	TouchHandler* touchHandler;
+    TouchHandler* touchHandler;
 
 	float compSize; // size of the component
-    float size; // size of rendered polygon
+    float renderSize; // size of rendered polygon
     float lineThickness; // line thickness of polygon
 	Colour col;
 	Path polyPath; // sequence of line segments to draw the geometry

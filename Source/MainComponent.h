@@ -42,6 +42,8 @@ private:
 
     AudioBuffer<float> synthBuff; // stores the output of individual oscillators
 
+    float childSize; // size of child components
+
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
     void removeOscillator(const String& id);
     void setActiveComponent(const String& id); // sets the selected oscillator active, and deactivates the rest
@@ -52,14 +54,17 @@ private:
         Sequencer* seq;
         Envelope* env;
         FirLpf* lpf;
-        OscInstance(const Point<float>& p, int fs, int samplesPerFrame, int channels)
+        Oscilloscope* scope;
+
+        OscInstance(const Point<float>& p, int fs, int samplesPerFrame, int channels, Colour col, float size)
         {
             seq = new Sequencer();
             env = new Envelope(Envelope::ADSR);
             env->setSamplingRate(fs);
-            oscComp = new OscComponent(p, fs, samplesPerFrame);
+            oscComp = new OscComponent(p, fs, samplesPerFrame, col, size);
             oscComp->mapRamp(env->getAmplitude()); // return pointer to the envelope's amplitude
             lpf = new FirLpf(fs, channels, samplesPerFrame, 21);
+            scope = new Oscilloscope(samplesPerFrame, col, p, size);
         }
         ~OscInstance()
         {
@@ -67,6 +72,7 @@ private:
             delete seq;
             delete env;
             delete lpf;
+            delete scope;
         }
     } OscInstance;
 

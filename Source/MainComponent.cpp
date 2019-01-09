@@ -35,12 +35,10 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     {   
         oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0)); // synthesize waveform to oscillator output buffer
 
-
-        if(oscillatorBank[i]->oscComp->getMode() == 1) // sustain envelope in idle mode
-            oscillatorBank[i]->env->noteOn();
+        if(oscillatorBank[i]->oscComp->isMouseButtonDown())
+            oscillatorBank[i]->env->noteOn(); // sustain envelope in interactions
         else
             oscillatorBank[i]->env->noteOff();
-
 
         if(oscillatorBank[i]->seq->nudge()) // nudge sequencer
         {
@@ -114,7 +112,6 @@ void MainComponent::removeOscillator(const String& id)
 
 void MainComponent::setActiveComponent(const String& id)
 {
-
     for(int i=0; i<oscillatorBank.size(); i++)
         oscillatorBank[i]->oscComp->setInactive(); // sets all components inactive
 
@@ -142,7 +139,7 @@ void MainComponent::componentBroughtToFront(Component& component)
 }
 
 void MainComponent::componentMovedOrResized (Component &component, bool wasMoved, bool wasResized)
-{
+{    
     // timing
     float normCoordX = float(component.getPosition().getX()+component.getWidth()/2) / float(getWidth()); // normalised position of the components center on the x axis
     oscillatorBank[component.getComponentID().getIntValue()]->seq->calculateEventLoc(normCoordX); // change sequencing according to component's center position
@@ -158,5 +155,4 @@ void MainComponent::componentMovedOrResized (Component &component, bool wasMoved
         removeOscillator(targetId);
     }
 
-    
 }

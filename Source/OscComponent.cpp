@@ -6,7 +6,7 @@ OscComponent::OscComponent(const Point<float>& p, int fs, int samplesPerFrame)
 : osc(new Oscillator(fs, samplesPerFrame)), touchHandler(new TouchHandler()),
 touchIndicatorSize(50), touchIndicatorThickness(1), touchIndicatorAlpha(0.2f), touchIndicatorCol(Colours::white), dashFrame(0),
 compSize(300), lineThickness(5), col(Colour().fromHSV(Random().nextFloat(), 1.0f, 1.0f, 1.0f)), alphaRange(Range<float>(0.2f, 0.9f)), regressionRange(Range<float>(1.0f, 50.0f)), saturationRange(Range<float>(0.2f, 1.0f)),
-refreshRate(30), idleCounter(0), idleMode(false)
+refreshRate(30), idleCounter(0)
 {
 	setBounds(p.x-compSize/2, p.y-compSize/2, compSize, compSize);
     size = compSize-50;
@@ -35,15 +35,6 @@ OscComponent::~OscComponent()
 }
 
 //==============================================================================
-int OscComponent::getMode()
-{
-    if(idleMode)
-        return 1; // idle mode
-    else
-        return 0; // sequence mode
-}
-
-
 void OscComponent::setActive()
 {
 	active = true;
@@ -58,6 +49,11 @@ void OscComponent::setInactive()
 void OscComponent::markAsActive()
 {
 	toFront(true);
+}
+
+bool OscComponent::isActive()
+{
+    return active;
 }
 
 void OscComponent::synthWaveform(float* buff)
@@ -147,7 +143,6 @@ void OscComponent::resized()
 void OscComponent::mouseDown(const MouseEvent& e)
 {
     idleCounter = 0; // reset idle time counter
-    idleMode = false;
 
     touchHandler->addTouchPoint(e);
     
@@ -164,7 +159,6 @@ void OscComponent::mouseDown(const MouseEvent& e)
 void OscComponent::mouseUp(const MouseEvent& e)
 {
     idleCounter = 0; // reset idle time counter
-    idleMode = false;
 
     touchHandler->rmTouchPoint(e);
 
@@ -192,8 +186,6 @@ void OscComponent::mouseDrag(const MouseEvent& e)
         case 1:
             if(idleCounter >= refreshRate/4) // exceeding 0.5 second idle time
             {
-                idleMode = true;
-
                 touchHandler->sampleTouchPointCoordinate(e); // sample the coordinates of the touch point over time
                 regressionRef = regressionRange.clipValue(regressionRef + touchHandler->getCircularRegression());
 
@@ -203,7 +195,6 @@ void OscComponent::mouseDrag(const MouseEvent& e)
             else
             {
                 idleCounter = 0; // reset idle time counter
-                idleMode = false;
 
                 setCentrePosition(posRef.x + (e.getScreenX()-posInit.x), posRef.y + (e.getScreenY()-posInit.y));
             }

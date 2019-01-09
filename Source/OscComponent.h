@@ -20,11 +20,10 @@ public:
     OscComponent(const Point<float>& p, int fs, int samplesPerFrame);
 	~OscComponent();
 
-    int getMode(); // idle mode - 1, sequence mode - 0
-
     void setActive();
     void setInactive();
     void markAsActive();
+    bool isActive();
     void synthWaveform(float* buff); // calls Oscillator::synthesizeWaveform()
     void renderTouchPoints(Graphics& g); // renders location of touch points and their distances
 
@@ -86,7 +85,6 @@ private:
 
     int refreshRate; // refresh rate of timer callback
     int idleCounter; // counter to keep track of idle time on interaction
-    bool idleMode; // idle mode state
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OscComponent);
 };

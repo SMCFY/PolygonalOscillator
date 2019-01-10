@@ -8,6 +8,8 @@ bg(ImageFileFormat::loadFrom(BinaryData::concrete_bg_png, (size_t) BinaryData::c
 {
     setSize(800, 600);
     setAudioChannels(0, numberOfChannels);
+
+    startTimerHz(30);
 }
 
 MainComponent::~MainComponent()
@@ -70,6 +72,8 @@ void MainComponent::paint (Graphics& g)
     for(int i=0; i<oscillatorBank.size(); i++)
     {
         oscillatorBank[i]->oscComp->renderTouchPoints(g);
+        oscillatorBank[i]->oscComp->repaint();
+        oscillatorBank[i]->scope->fillBuffer(synthBuff.getWritePointer(0));
         oscillatorBank[i]->scope->repaint();
     }
 
@@ -77,6 +81,7 @@ void MainComponent::paint (Graphics& g)
 
 void MainComponent::resized()
 {
+    repaint();
     // This is called when the MainContentComponent is resized.
     // If you add any child components, this is where you should
     // update their positions.
@@ -161,4 +166,11 @@ void MainComponent::componentMovedOrResized (Component &component, bool wasMoved
         removeOscillator(targetId);
     }
 
+}
+
+//=============================================================================
+
+void MainComponent::timerCallback()
+{
+    repaint();
 }

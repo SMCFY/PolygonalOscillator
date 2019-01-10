@@ -14,7 +14,7 @@
 #include "Envelope.h"
 #include "FirLpf.h"
 
-class MainComponent : public AudioAppComponent, public ComponentListener
+class MainComponent : public AudioAppComponent, public ComponentListener, public Timer
 {
 public:
 
@@ -33,6 +33,8 @@ public:
 
     void componentBroughtToFront(Component& component) override; // called when an oscillator instances is selected
     void componentMovedOrResized (Component &component, bool wasMoved, bool wasResized) override; // called when an oscillator is dragged
+
+    void timerCallback() override;
 
 private:
 

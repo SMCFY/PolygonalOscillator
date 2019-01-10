@@ -68,35 +68,6 @@ void OscComponent::synthWaveform(float* buff)
     return osc->synthesizeWaveform(buff);
 }
 
-void OscComponent::renderTouchPoints(Graphics& g)
-{
-    g.setColour(touchIndicatorCol);
-    g.setOpacity(touchIndicatorAlpha);
-
-    for(int i = 0; i < touchHandler->getNumPoints(); i++) // touch indicator circle for all touch points
-    {
-        g.drawEllipse(touchHandler->getTouchPos(i).x-touchIndicatorSize/2, touchHandler->getTouchPos(i).y-touchIndicatorSize/2, touchIndicatorSize, touchIndicatorSize, touchIndicatorThickness);
-        
-    }
-
-    if(touchHandler->getNumPoints() == 2) // 2 touchpoints
-    {
-        g.drawDashedLine(Line<float>(touchHandler->getTouchPos(0), touchHandler->getTouchPos(1)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
-    }
-    else if(touchHandler->getNumPoints() == 3) // 3 touchpoints
-    {
-        // triangle outline
-        g.drawDashedLine(Line<float>(touchHandler->getTouchPos(0), touchHandler->getTouchPos(1)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
-        g.drawDashedLine(Line<float>(touchHandler->getTouchPos(0), touchHandler->getTouchPos(2)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
-        g.drawDashedLine(Line<float>(touchHandler->getTouchPos(1), touchHandler->getTouchPos(2)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
-        // triangle fill
-        g.setOpacity(touchIndicatorAlpha*0.1);
-        Path tri;
-        tri.addTriangle(touchHandler->getTouchPos(0), touchHandler->getTouchPos(1), touchHandler->getTouchPos(2));
-        g.fillPath(tri);
-    }
-    
-}
 //==============================================================================
 
 void OscComponent::setBrightness(const float& brightness)
@@ -120,8 +91,6 @@ void OscComponent::timerCallback()
 {   
     if(touchHandler->getNumPoints() == 1)
         idleCounter++; // increment idle time counter 
-
-	repaint();
 }
 
 //==============================================================================
@@ -229,6 +198,39 @@ void OscComponent::mouseDrag(const MouseEvent& e)
 void OscComponent::mapRamp(float* amp)
 {
     ramp = amp;
+}
+
+
+//==============================================================================
+
+void OscComponent::renderTouchPoints(Graphics& g)
+{
+    g.setColour(touchIndicatorCol);
+    g.setOpacity(touchIndicatorAlpha);
+
+    for(int i = 0; i < touchHandler->getNumPoints(); i++) // touch indicator circle for all touch points
+    {
+        g.drawEllipse(touchHandler->getTouchPos(i).x-touchIndicatorSize/2, touchHandler->getTouchPos(i).y-touchIndicatorSize/2, touchIndicatorSize, touchIndicatorSize, touchIndicatorThickness);
+        
+    }
+
+    if(touchHandler->getNumPoints() == 2) // 2 touchpoints
+    {
+        g.drawDashedLine(Line<float>(touchHandler->getTouchPos(0), touchHandler->getTouchPos(1)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
+    }
+    else if(touchHandler->getNumPoints() == 3) // 3 touchpoints
+    {
+        // triangle outline
+        g.drawDashedLine(Line<float>(touchHandler->getTouchPos(0), touchHandler->getTouchPos(1)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
+        g.drawDashedLine(Line<float>(touchHandler->getTouchPos(0), touchHandler->getTouchPos(2)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
+        g.drawDashedLine(Line<float>(touchHandler->getTouchPos(1), touchHandler->getTouchPos(2)), touchIndicatorDash, 2, touchIndicatorThickness, 0);
+        // triangle fill
+        g.setOpacity(touchIndicatorAlpha*0.1);
+        Path tri;
+        tri.addTriangle(touchHandler->getTouchPos(0), touchHandler->getTouchPos(1), touchHandler->getTouchPos(2));
+        g.fillPath(tri);
+    }
+    
 }
 
 //==============================================================================

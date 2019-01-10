@@ -18,7 +18,7 @@ public:
 	Oscilloscope(int samplesPerFrame, Colour col, Point<float> pos, float width);
 	~Oscilloscope();
 
-	void fillBuffer();
+	void fillBuffer(float* buff);
 
 	void paint(Graphics& g) override;
     void resized() override;
@@ -28,7 +28,8 @@ private:
 	int samplesPerFrame;
 	Colour col;
 
-	std::vector<Line<float>> waveSegments;
+	std::vector<Line<float>> waveformSegmentBuffer;
+	std::vector<Line<float>> waveformSegmentRender;
 
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Oscilloscope);

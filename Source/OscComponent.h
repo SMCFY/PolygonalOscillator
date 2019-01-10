@@ -26,7 +26,6 @@ public:
     void markAsActive();
     bool isActive();
     void synthWaveform(float* buff); // calls Oscillator::synthesizeWaveform()
-    void renderTouchPoints(Graphics& g); // renders location of touch points and their distances
 
     void setBrightness(const float& brightness);
     void setSaturation(const float& saturation);
@@ -42,6 +41,8 @@ public:
     void mouseDrag(const MouseEvent& e) override;
     
     void mapRamp(float* amp); 
+
+    void renderTouchPoints(Graphics& g); // renders location of touch points and their distances
 
 private:
 

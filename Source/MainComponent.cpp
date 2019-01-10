@@ -24,8 +24,6 @@ void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRat
     fs = sampleRate;
     samplesPerFrame = samplesPerBlockExpected;
 
-    synthBuff = AudioBuffer<float>(1, samplesPerFrame); // initialize oscillator output buffer with a single channel
-
 }
 
 void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
@@ -35,7 +33,7 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
     
     for (int i = 0; i < oscillatorBank.size(); i++)
     {   
-        oscillatorBank[i]->oscComp->synthWaveform(synthBuff.getWritePointer(0)); // synthesize waveform to oscillator output buffer
+        oscillatorBank[i]->oscComp->synthWaveform(oscillatorBank[i]->synthBuff.getWritePointer(0)); // synthesize waveform to oscillator output buffer
 
         if(oscillatorBank[i]->oscComp->isMouseButtonDown())
             oscillatorBank[i]->env->noteOn(); // sustain envelope in interactions
@@ -46,11 +44,11 @@ void MainComponent::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFil
         {
             oscillatorBank[i]->env->trigger(); // trigger envelope
         }
-        oscillatorBank[i]->env->process(synthBuff); // process oscillator output buffer with respective envelope
+        oscillatorBank[i]->env->process(oscillatorBank[i]->synthBuff); // process oscillator output buffer with respective envelope
         // oscillatorBank[i]->lpf->process(synthBuff); // filtering
 
-        for (int ch=0; ch < numberOfChannels; ch++)
-            bufferToFill.buffer->addFrom(ch, 0, synthBuff, 0, 0, samplesPerFrame, 1.0f/float(oscillatorBank.size())); // add the oscillator outputs to the output buffer with equal weights
+        for (int ch=0; ch < numberOfChannels; ch++) //mixing
+            bufferToFill.buffer->addFrom(ch, 0, oscillatorBank[i]->synthBuff, 0, 0, samplesPerFrame, 1.0f/float(oscillatorBank.size())); // add the oscillator outputs to the output buffer with equal weights
     }
     
 }
@@ -73,7 +71,7 @@ void MainComponent::paint (Graphics& g)
     {
         oscillatorBank[i]->oscComp->renderTouchPoints(g);
         oscillatorBank[i]->oscComp->repaint();
-        oscillatorBank[i]->scope->fillBuffer(synthBuff.getWritePointer(0));
+        oscillatorBank[i]->scope->fillBuffer(oscillatorBank[i]->synthBuff.getWritePointer(0));
         oscillatorBank[i]->scope->repaint();
     }
 

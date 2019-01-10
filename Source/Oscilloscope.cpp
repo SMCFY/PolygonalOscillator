@@ -24,10 +24,11 @@ void Oscilloscope::fillBuffer(float* buff)
 {
 	waveformSegmentBuffer.clear(); // clear buffer only
 
-	float scale = getParentHeight()/samplesPerFrame; // scale along the y axis
+	float scaleY = getParentHeight()/samplesPerFrame; // scale along the y axis
+	float scaleX = getWidth()/2; //scale along x
 
 	for(int i=0; i<samplesPerFrame-1; i++)
-        waveformSegmentBuffer.push_back(Line<float>(buff[i]*(getWidth()/2)+(getWidth()/2), i*scale, buff[i+1]*(getWidth()/2)+(getWidth()/2), (i+1)*scale)); // add line segments according to passed buffer
+        waveformSegmentBuffer.push_back(Line<float>(buff[i]*scaleX+scaleX, i*scaleY, buff[i+1]*scaleX+scaleX, (i+1)*scaleY)); // add line segments according to passed buffer
 
     waveformSegmentRender = waveformSegmentBuffer;
 }

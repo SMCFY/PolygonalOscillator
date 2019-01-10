@@ -42,8 +42,6 @@ private:
     int numberOfChannels; // number of output channels
     int samplesPerFrame; // number of samples per frame
 
-    AudioBuffer<float> synthBuff; // stores the output of individual oscillators
-
     float childSize; // size of child components
 
     void createOscillator(const Point<float>& p); // instantiates a new oscillator - gui component pair
@@ -58,6 +56,8 @@ private:
         FirLpf* lpf;
         Oscilloscope* scope;
 
+        AudioBuffer<float> synthBuff; // stores the output of individual oscillators
+
         OscInstance(const Point<float>& p, int fs, int samplesPerFrame, int channels, Colour col, float size)
         {
             seq = new Sequencer();
@@ -67,6 +67,11 @@ private:
             oscComp->mapRamp(env->getAmplitude()); // return pointer to the envelope's amplitude
             lpf = new FirLpf(fs, channels, samplesPerFrame, 21);
             scope = new Oscilloscope(samplesPerFrame, col, p, size);
+
+            synthBuff = AudioBuffer<float>(1, samplesPerFrame); // one channel per oscillator
+            for(int i=0; i<samplesPerFrame; i++)
+                synthBuff.getWritePointer(0)[i] = 0;
+
         }
         ~OscInstance()
         {
